@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.ScenicDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.Scenic" >
+    <id column="sid" property="sid" jdbcType="INTEGER" />
+    <result column="sname" property="sname" jdbcType="VARCHAR" />
+    <result column="tprice" property="tprice" jdbcType="INTEGER" />
+    <result column="surl" property="surl" jdbcType="VARCHAR" />
+    <result column="spicture" property="spicture" jdbcType="VARCHAR" />
+    <result column="sintroduce" property="sintroduce" jdbcType="VARCHAR" />
+    <result column="sarea" property="sarea" jdbcType="VARCHAR" />
+    <result column="cdate" property="cdate" jdbcType="TIMESTAMP" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    sid, sname, tprice, surl, spicture, sintroduce, sarea, cdate, gdate
+  </sql>
+  
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(1) from t_zjgj_scenic 
+  	<where>
+  		<if test="from != '' and to != ''" >and cdate between #{from} and #{to} </if>
+  		<if test="sname != ''" > and sname like #{sname} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from t_zjgj_scenic
+  	<where>
+  		<if test="from != '' and to != ''" >and cdate between #{from} and #{to} </if>
+  		<if test="sname != ''" > and sname like #{sname} </if>
+  	</where>
+  	order by cdate desc limit #{page},#{rows}
+  </select>
+  
+  <!-- 获取用户余额 -->
+  <select id="selectScenicBalanceFromUser" parameterType="java.lang.Integer" resultType="java.math.BigDecimal">
+  	select balance from t_zjgj_scenic_user where mid = #{mid}
+  </select>
+  
+  <!-- 更新余额 -->
+  <update id="updateScenicBalanceFromUser">
+  	update t_zjgj_scenic_user set balance = #{ubalance} where mid = #{mid}
+  </update>
+  
+  <!-- 插入购票历史 -->
+  <insert id="insertScenicToHis">
+  	insert into t_zjgj_scenic_ticket_history (mid, sid, tnum, tprice) values (#{umid}, #{sid}, #{tNum}, #{tPrice})
+  </insert>
+  
+  <!-- select t_zjgj_scenic_user -->
+  <select id="selectScenicUser" parameterType="java.lang.Integer" resultType="java.util.Map">
+  	select account, balance from t_zjgj_scenic_user where mid = #{mid}
+  </select>
+  
+  <!-- 获取所有景区 -->
+  <select id="selectScenicAll" resultMap="BaseResultMap" >
+  	select sid, sname, tprice, sarea, spicture from t_zjgj_scenic
+  </select>
+  
+  <!-- 获取票列表 -->
+  <select id="selectTicketList" parameterType="java.lang.Integer" resultType="java.util.Map">
+  	select tid, a.sid, tnum, tprice, gdate, sname, sarea, spicture, tvalid from (
+  		(select tid, sid, tnum, tprice, gdate, tvalid from t_zjgj_scenic_ticket_history where mid = #{mid}) as a
+  		left join 
+  			(select sid, sname, sarea, spicture from t_zjgj_scenic) as b
+  				on a.sid = b.sid
+  	) order by gdate desc
+  </select>
+  
+  <!-- 根据手机获取mid -->
+  <select id="selectMidByMobileFromMember" parameterType="java.lang.String" resultType="java.lang.Integer">
+  	select mid from t_zjgj_member where mobile = #{mobile}
+  </select>
+  
+  <!--  -->
+  <insert id="insertScenicUser" parameterType="java.util.Map">
+  	insert into t_zjgj_scenic_user (mid, account, balance, cdate) values (#{mid}, #{account}, #{balance}, #{cdate})
+  </insert>
+  <update id="resetBalance">
+  	update t_zjgj_scenic_user set balance = balance + #{balance} ,
+  		 account = account + #{account} where mid = #{mid}
+  </update>
+  
+  <!-- 统计当日购票次数 -->
+  <select id="selectTicketExistToday" parameterType="java.util.Map" resultType="java.lang.Integer">
+  	select count(1) from t_zjgj_scenic_ticket_history where mid = #{mid} and sid = #{sid} and gdate > #{date}
+  </select>
+  
+  <!-- 验票 -->
+  <update id="updateTicketValid" parameterType="java.lang.Integer">
+  	UPDATE t_zjgj_scenic_ticket_history SET tvalid = 2 where tid = #{tid}
+  </update>
+  
+  <!-- 获取已添加亲属数量 -->
+  <select id="selectRelativeCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  	select count(1) from t_zjgj_scenic_relative where mid = #{mid}
+  </select>
+  <!-- 添加亲属 -->
+  <insert id="insertRelative" parameterType="java.util.Map">
+  	insert into t_zjgj_scenic_relative (mid, rel_name, rel_idno, rel_mobile) values (#{mid}, #{name}, #{idno}, #{mobile})
+  </insert>
+  <!-- 查询亲属列表 -->
+  <select id="selectRelative" parameterType="java.lang.Integer" resultType="java.util.Map">
+  	select mid, rel_name, rel_idno, rel_mobile, gdate from t_zjgj_scenic_relative where mid = #{mid}
+  </select>
+  
+  <!-- 查询工作人员账号 -->
+  <select id="selectScenicManager" resultType="java.lang.Integer">
+  	select sid from t_zjgj_scenic_manage where username = #{user} and password = #{pass}
+  </select>
+  
+  <!-- 景区人员获取票列表 -->
+  <select id="selectTicketByManager" resultType="java.util.Map">
+  	select tid, a.sid, tnum, tprice, gdate, sname, sarea, spicture, tvalid from (
+  		(select tid, sid, tnum, tprice, gdate, tvalid from t_zjgj_scenic_ticket_history 
+  			where tvalid = 1 and mid = #{mid} and sid = #{sid}) as a
+  		left join 
+  			(select sid, sname, sarea, spicture from t_zjgj_scenic) as b
+  				on a.sid = b.sid
+  	) order by gdate desc
+  </select>
+  
+  <!-- 景区人员条件查询票列表 -->
+  <select id="selectAllTicketByManager" parameterType="java.util.Map" resultType="java.util.Map">
+  	select tid, a.mid, a.sid, tnum, tprice, gdate, sname, sarea, spicture, tvalid, nick, mobile from (
+  		((select tid, mid, sid, tnum, tprice, gdate, tvalid from t_zjgj_scenic_ticket_history 
+  			<where>
+  				tvalid = 2
+  				<if test="from != null and to != null" >and gdate between #{from} and #{to} </if>
+  				<if test="sid != ''" > and sid = #{sid} </if>
+  			</where>
+  			
+  			) as a
+  		left join 
+  			(select sid, sname, sarea, spicture from t_zjgj_scenic) as b
+  				on a.sid = b.sid
+  				) left join 
+  					(select mid, nick, mobile from t_zjgj_member) as c 
+  					on a.mid = c.mid
+  	) order by gdate desc
+  </select>
+  
+  <!-- 查看用户已经购买门票数 -->
+  <select id="selectCountTicketByMid" parameterType="int" resultType="int">
+  	select count(1) from `t_zjgj_scenic_ticket_history` where `mid` = #{mid}
+  </select>
+  
+  <!-- 1元购票预订单创建 -->
+  <insert id="insertOneOrder" >
+  	INSERT INTO `t_zjgj_scenic_order` (`orderid`, `mobile`, `sid`, `ptype`) VALUES (#{order}, #{mobile}, #{sid}, #{ptype})
+  </insert>
+  
+  <!-- 获取1元预订单 SELECT * FROM `zjgjdb`.`t_zjgj_scenic_order` WHERE `order_no` = '000' LIMIT 0, 1000;  -->
+  <select id="selectOrder" parameterType="String" resultType="Map">
+  	SELECT orderid, mobile, sid FROM `t_zjgj_scenic_order` WHERE `orderid` = #{order} AND `ptype` = 5
+  </select>
+  
+  <!-- 根据订单 获取 `t_zjgj_epay_payment` -->
+  <select id="select_epay_payment_by_orderid" parameterType="String" resultType="Map" >
+  	SELECT mid, rid, mobile FROM `t_zjgj_epay_payment` WHERE `orderid` = #{order} AND `ptype` = 5
+  </select>
+  
+  <!-- 获取景区 -->
+  <select id="selectScenicBySid" parameterType="int" resultType="Map">
+  	select sid, sname, tprice from `t_zjgj_scenic` where sid = #{sid}
+  </select>
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_scenic
+    where sid = #{sid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_scenic
+    where sid = #{sid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.Scenic" >
+    insert into t_zjgj_scenic (sid, sname, tprice, 
+      surl, spicture, sintroduce, 
+      sarea, cdate, gdate
+      )
+    values (#{sid,jdbcType=INTEGER}, #{sname,jdbcType=VARCHAR}, #{tprice,jdbcType=INTEGER}, 
+      #{surl,jdbcType=VARCHAR}, #{spicture,jdbcType=VARCHAR}, #{sintroduce,jdbcType=VARCHAR}, 
+      #{sarea,jdbcType=VARCHAR}, #{cdate,jdbcType=TIMESTAMP}, #{gdate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.Scenic" >
+    insert into t_zjgj_scenic
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        sid,
+      </if>
+      <if test="sname != null" >
+        sname,
+      </if>
+      <if test="tprice != null" >
+        tprice,
+      </if>
+      <if test="surl != null" >
+        surl,
+      </if>
+      <if test="spicture != null" >
+        spicture,
+      </if>
+      <if test="sintroduce != null" >
+        sintroduce,
+      </if>
+      <if test="sarea != null" >
+        sarea,
+      </if>
+      <if test="cdate != null" >
+        cdate,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="sname != null" >
+        #{sname,jdbcType=VARCHAR},
+      </if>
+      <if test="tprice != null" >
+        #{tprice,jdbcType=INTEGER},
+      </if>
+      <if test="surl != null" >
+        #{surl,jdbcType=VARCHAR},
+      </if>
+      <if test="spicture != null" >
+        #{spicture,jdbcType=VARCHAR},
+      </if>
+      <if test="sintroduce != null" >
+        #{sintroduce,jdbcType=VARCHAR},
+      </if>
+      <if test="sarea != null" >
+        #{sarea,jdbcType=VARCHAR},
+      </if>
+      <if test="cdate != null" >
+        #{cdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.Scenic" >
+    update t_zjgj_scenic
+    <set >
+      <if test="sname != null" >
+        sname = #{sname,jdbcType=VARCHAR},
+      </if>
+      <if test="tprice != null" >
+        tprice = #{tprice,jdbcType=INTEGER},
+      </if>
+      <if test="surl != null" >
+        surl = #{surl,jdbcType=VARCHAR},
+      </if>
+      <if test="spicture != null" >
+        spicture = #{spicture,jdbcType=VARCHAR},
+      </if>
+      <if test="sintroduce != null" >
+        sintroduce = #{sintroduce,jdbcType=VARCHAR},
+      </if>
+      <if test="sarea != null" >
+        sarea = #{sarea,jdbcType=VARCHAR},
+      </if>
+      <if test="cdate != null" >
+        cdate = #{cdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.Scenic" >
+    update t_zjgj_scenic
+    set sname = #{sname,jdbcType=VARCHAR},
+      tprice = #{tprice,jdbcType=INTEGER},
+      surl = #{surl,jdbcType=VARCHAR},
+      spicture = #{spicture,jdbcType=VARCHAR},
+      sintroduce = #{sintroduce,jdbcType=VARCHAR},
+      sarea = #{sarea,jdbcType=VARCHAR},
+      cdate = #{cdate,jdbcType=TIMESTAMP},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+</mapper>

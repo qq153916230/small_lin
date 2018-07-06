@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.AidgoldInfoDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.AidgoldInfo" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="sname" property="sname" jdbcType="CHAR" />
+    <result column="mobile" property="mobile" jdbcType="CHAR" />
+    <result column="weixin" property="weixin" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="contact_name1" property="contactName1" jdbcType="VARCHAR" />
+    <result column="contact_rela1" property="contactRela1" jdbcType="VARCHAR" />
+    <result column="contact_tele1" property="contactTele1" jdbcType="VARCHAR" />
+    <result column="contact_idno1" property="contactIdno1" jdbcType="VARCHAR" />
+    <result column="contact_name2" property="contactName2" jdbcType="VARCHAR" />
+    <result column="contact_rela2" property="contactRela2" jdbcType="VARCHAR" />
+    <result column="contact_tele2" property="contactTele2" jdbcType="VARCHAR" />
+    <result column="contact_idno2" property="contactIdno2" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, mid, sname, mobile, weixin, email, contact_name1, contact_tele1, contact_name2, 
+    contact_tele2, contact_idno1, contact_idno2, contact_rela1, contact_rela2
+  </sql>
+  <select id="selectByMid" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_info
+    where mid = #{mid,jdbcType=INTEGER}
+  </select>
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_info
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_aidgold_info
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.AidgoldInfo" >
+    insert into t_zjgj_aidgold_info (tid, mid, sname, 
+      mobile, weixin, email, 
+      contact_name1, contact_tele1, contact_name2, 
+      contact_tele2)
+    values (#{tid,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, #{sname,jdbcType=CHAR}, 
+      #{mobile,jdbcType=CHAR}, #{weixin,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{contactName1,jdbcType=VARCHAR}, #{contactTele1,jdbcType=CHAR}, #{contactName2,jdbcType=VARCHAR}, 
+      #{contactTele2,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.AidgoldInfo" >
+    insert into t_zjgj_aidgold_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="sname != null" >
+        sname,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="weixin != null" >
+        weixin,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="contactName1 != null" >
+        contact_name1,
+      </if>
+      <if test="contactTele1 != null" >
+        contact_tele1,
+      </if>
+      <if test="contactName2 != null" >
+        contact_name2,
+      </if>
+      <if test="contactTele2 != null" >
+        contact_tele2,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="sname != null" >
+        #{sname,jdbcType=CHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=CHAR},
+      </if>
+      <if test="weixin != null" >
+        #{weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="contactName1 != null" >
+        #{contactName1,jdbcType=VARCHAR},
+      </if>
+      <if test="contactTele1 != null" >
+        #{contactTele1,jdbcType=CHAR},
+      </if>
+      <if test="contactName2 != null" >
+        #{contactName2,jdbcType=VARCHAR},
+      </if>
+      <if test="contactTele2 != null" >
+        #{contactTele2,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.AidgoldInfo" >
+    update t_zjgj_aidgold_info
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="sname != null" >
+        sname = #{sname,jdbcType=CHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=CHAR},
+      </if>
+      <if test="weixin != null" >
+        weixin = #{weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="contactName1 != null" >
+        contact_name1 = #{contactName1,jdbcType=VARCHAR},
+      </if>
+      <if test="contactTele1 != null" >
+        contact_tele1 = #{contactTele1,jdbcType=CHAR},
+      </if>
+      <if test="contactName2 != null" >
+        contact_name2 = #{contactName2,jdbcType=VARCHAR},
+      </if>
+      <if test="contactTele2 != null" >
+        contact_tele2 = #{contactTele2,jdbcType=CHAR},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.AidgoldInfo" >
+    update t_zjgj_aidgold_info
+    set mid = #{mid,jdbcType=INTEGER},
+      sname = #{sname,jdbcType=CHAR},
+      mobile = #{mobile,jdbcType=CHAR},
+      weixin = #{weixin,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      contact_name1 = #{contactName1,jdbcType=VARCHAR},
+      contact_tele1 = #{contactTele1,jdbcType=CHAR},
+      contact_name2 = #{contactName2,jdbcType=VARCHAR},
+      contact_tele2 = #{contactTele2,jdbcType=CHAR}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>

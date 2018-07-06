@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0">
+	<display-name>Archetype Created Web Application</display-name>
+	<!-- 引入spring和mybatis的配置文件 --><!-- 引入spring-quartz.xml -->
+	<context-param> 
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:spring-*.xml</param-value>
+	</context-param>
+    
+	<!-- 编码过滤器 -->
+	<!-- <filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<async-supported>true</async-supported>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+ 
+	<filter>
+		<filter-name>commonFilter</filter-name>
+		<filter-class>com.app.util.zjgj.filter.ZjgjCommonFilter</filter-class>
+		<init-param>
+			<param-name>openFilter</param-name> 
+			<param-value>false</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>commonFilter</filter-name> 
+		<url-pattern>/*</url-pattern>
+	</filter-mapping> 
+	 
+	<filter>
+	    <filter-name>doFilter</filter-name>
+	    <filter-class>com.app.util.zjgj.filter.ZjgjDoFilter</filter-class>
+	  </filter>
+	  <filter-mapping>
+	    <filter-name>doFilter</filter-name>
+	    <url-pattern>*.do</url-pattern>
+	</filter-mapping> 
+
+	<filter>
+	    <filter-name>memberFilter</filter-name>
+	    <filter-class>com.app.util.zjgj.filter.ZjgjMemberFilter</filter-class>
+	  </filter>
+	  <filter-mapping>
+	    <filter-name>memberFilter</filter-name>
+	    <url-pattern>*.meb</url-pattern>
+	</filter-mapping>
+	
+	<!-- websocket filter -->
+    <filter>
+        <filter-name>startFilter</filter-name>
+        <filter-class>com.app.util.zjgj.webSocket.StartFilter</filter-class>
+    </filter>
+	  
+	<!-- Spring监听器 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- 防止Spring内存溢出监听器 -->
+	<listener>
+		<listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+	</listener>
+	
+	
+	
+	<!-- 不引入这个东西，jsp中无法加载css -->
+	<servlet-mapping >
+		<servlet-name >default </servlet-name >             
+		<url-pattern >*.css</url-pattern>        
+		<url-pattern >*.js</url-pattern>        
+		<url-pattern >*.gif</url-pattern>        
+		<url-pattern >*.png</url-pattern>        
+		<url-pattern >*.jpg</url-pattern>        
+		<url-pattern >*.xls</url-pattern>   
+		<url-pattern >*.html</url-pattern>
+		<url-pattern >*.pdf</url-pattern>
+		<url-pattern >*.zip</url-pattern>
+		<url-pattern >*.ico</url-pattern>
+		<url-pattern >*.log</url-pattern>
+	</servlet-mapping >
+	
+	
+	<!-- Spring MVC servlet -->
+	<servlet>
+		<servlet-name>SpringMVC</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:spring-mvc.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+		<async-supported>true</async-supported>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SpringMVC</servlet-name>
+		<!-- 此处可以可以配置成*.do，对应struts的后缀习惯 -->
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	 <!-- 加载log4j配置文件 -->
+    <context-param>
+      <param-name>log4jConfigLocation</param-name>
+      <param-value>classpath:log4j.properties</param-value>
+      <!-- <param-value>/WEB-INF/log4j.xml</param-value> -->
+    </context-param>
+    <listener>
+       <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+	
+	<welcome-file-list>
+		<welcome-file>/index.jsp</welcome-file>
+	</welcome-file-list>
+	
+	<!-- 启动工具类里面定时器的监听器 -->
+	<!-- <listener>  
+        <listener-class>com.app.util.ContextListener</listener-class>    
+	</listener> -->
+	
+	<!-- 上传文件servlet -->
+  	<servlet> 
+        <servlet-name>UploadServlet</servlet-name> 
+        <servlet-class>com.app.util.UploadServlet</servlet-class> 
+ 
+        <init-param> 
+            <param-name>filepath</param-name> 
+            <param-value>uploadFile</param-value> 
+        </init-param> 
+        <init-param> 
+            <param-name>temppath</param-name> 
+            <param-value>temp</param-value> 
+        </init-param> 
+    </servlet>     
+    <servlet-mapping> 
+        <servlet-name>UploadServlet</servlet-name> 
+        <url-pattern>/upload</url-pattern> 
+    </servlet-mapping>
+    <!-- 上传文件servlet2 -->
+  	<servlet> 
+        <servlet-name>UploadServletFixedUrl</servlet-name> 
+        <servlet-class>com.app.util.UploadServletFixedUrl</servlet-class> 
+ 
+        <init-param> 
+            <param-name>filepath</param-name> 
+            <param-value>uploadFile</param-value> 
+        </init-param> 
+        <init-param> 
+            <param-name>temppath</param-name> 
+            <param-value>temp</param-value> 
+        </init-param> 
+    </servlet>     
+    <servlet-mapping> 
+        <servlet-name>UploadServletFixedUrl</servlet-name> 
+        <url-pattern>/uploadFixedUrl</url-pattern> 
+    </servlet-mapping>
+</web-app>

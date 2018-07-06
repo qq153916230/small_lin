@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.EpayBackDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.EpayBack" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="orderid" property="orderid" jdbcType="VARCHAR" />
+    <result column="bussflowno" property="bussflowno" jdbcType="VARCHAR" />
+    <result column="money" property="money" jdbcType="DECIMAL" />
+    <result column="acctno" property="acctno" jdbcType="VARCHAR" />
+    <result column="acctname" property="acctname" jdbcType="VARCHAR" />
+    <result column="accBankName" property="accbankname" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="status_date" property="statusDate" jdbcType="TIMESTAMP" />
+    <result column="ptimes" property="ptimes" jdbcType="SMALLINT" />
+    <result column="zdmonth" property="zdmonth" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, mid, mobile, orderid, bussflowno, money, acctno, acctname, accBankName, remark, 
+    status, status_date, ptimes, zdmonth
+  </sql>
+  
+  <!-- 查询总条数 -->
+  <select id="selectCount" resultType="java.lang.Long">
+  	select count(id) from t_zjgj_epay_back
+  </select>
+  <!-- 条件查询总条数 -->
+  <select id="selectCountCondition" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(id) from t_zjgj_epay_back 
+  	<where>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  		<if test="mobile != null and mobile !=''" > and mobile = #{mobile,jdbcType=VARCHAR} </if>
+  		<if test="searchStatus != null and searchStatus !=''" > and status = #{searchStatus,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from t_zjgj_epay_back
+  	<where>
+  		<if test="from != null and from !=''" >and status_date &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and status_date &lt;= #{to,jdbcType=DATE} </if>
+  		<if test="mobile != null and mobile !=''" > and mobile = #{mobile,jdbcType=VARCHAR} </if>
+  		<if test="searchStatus != null and searchStatus !=''" > and status = #{searchStatus,jdbcType=VARCHAR} </if>
+  	</where>
+  	order by status_date desc limit #{page},#{rows}
+  </select>
+  <!-- 条件查询总金额 -->
+  <select id="selectCountMoney" resultType="java.lang.String" parameterType="java.util.Map">
+  	select sum(money) from t_zjgj_epay_back 
+  	<where>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  		<if test="mobile != null and mobile !=''" > and mobile = #{mobile,jdbcType=VARCHAR} </if>
+  		<if test="searchStatus != null and searchStatus !=''" > and status = #{searchStatus,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  
+  
+  
+  
+  
+  
+  <!-- auto-generate -->
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_epay_back
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_epay_back
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.EpayBack" >
+    insert into t_zjgj_epay_back (id, mid, mobile, 
+      orderid, bussflowno, money, 
+      acctno, acctname, accBankName, 
+      remark, status, status_date, 
+      ptimes, zdmonth)
+    values (#{id,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, #{mobile,jdbcType=VARCHAR}, 
+      #{orderid,jdbcType=VARCHAR}, #{bussflowno,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL}, 
+      #{acctno,jdbcType=VARCHAR}, #{acctname,jdbcType=VARCHAR}, #{accbankname,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{statusDate,jdbcType=TIMESTAMP}, 
+      #{ptimes,jdbcType=SMALLINT}, #{zdmonth,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.EpayBack" >
+    insert into t_zjgj_epay_back
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="orderid != null" >
+        orderid,
+      </if>
+      <if test="bussflowno != null" >
+        bussflowno,
+      </if>
+      <if test="money != null" >
+        money,
+      </if>
+      <if test="acctno != null" >
+        acctno,
+      </if>
+      <if test="acctname != null" >
+        acctname,
+      </if>
+      <if test="accbankname != null" >
+        accBankName,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusDate != null" >
+        status_date,
+      </if>
+      <if test="ptimes != null" >
+        ptimes,
+      </if>
+      <if test="zdmonth != null" >
+        zdmonth,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="orderid != null" >
+        #{orderid,jdbcType=VARCHAR},
+      </if>
+      <if test="bussflowno != null" >
+        #{bussflowno,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="acctno != null" >
+        #{acctno,jdbcType=VARCHAR},
+      </if>
+      <if test="acctname != null" >
+        #{acctname,jdbcType=VARCHAR},
+      </if>
+      <if test="accbankname != null" >
+        #{accbankname,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusDate != null" >
+        #{statusDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ptimes != null" >
+        #{ptimes,jdbcType=SMALLINT},
+      </if>
+      <if test="zdmonth != null" >
+        #{zdmonth,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.EpayBack" >
+    update t_zjgj_epay_back
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="orderid != null" >
+        orderid = #{orderid,jdbcType=VARCHAR},
+      </if>
+      <if test="bussflowno != null" >
+        bussflowno = #{bussflowno,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        money = #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="acctno != null" >
+        acctno = #{acctno,jdbcType=VARCHAR},
+      </if>
+      <if test="acctname != null" >
+        acctname = #{acctname,jdbcType=VARCHAR},
+      </if>
+      <if test="accbankname != null" >
+        accBankName = #{accbankname,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusDate != null" >
+        status_date = #{statusDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ptimes != null" >
+        ptimes = #{ptimes,jdbcType=SMALLINT},
+      </if>
+      <if test="zdmonth != null" >
+        zdmonth = #{zdmonth,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.EpayBack" >
+    update t_zjgj_epay_back
+    set mid = #{mid,jdbcType=INTEGER},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      orderid = #{orderid,jdbcType=VARCHAR},
+      bussflowno = #{bussflowno,jdbcType=VARCHAR},
+      money = #{money,jdbcType=DECIMAL},
+      acctno = #{acctno,jdbcType=VARCHAR},
+      acctname = #{acctname,jdbcType=VARCHAR},
+      accBankName = #{accbankname,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      status_date = #{statusDate,jdbcType=TIMESTAMP},
+      ptimes = #{ptimes,jdbcType=SMALLINT},
+      zdmonth = #{zdmonth,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

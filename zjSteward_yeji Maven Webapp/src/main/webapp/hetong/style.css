@@ -1,0 +1,148 @@
+body{
+    background-color: #efefef;
+    margin:0;
+}
+header p{
+    text-align: center;
+    background:  #118EEA;
+    margin:0;
+    padding:15px;
+    font-size: 16px;
+    color:#fff;
+}
+#zlj_contract{
+    overflow: hidden;
+    transform: none;
+    backface-visibility: hidden;
+    transition: none;
+    transform-origin: 0% 0% 0px;
+}
+.zlj_process{
+    text-align: center;
+    margin-bottom: 10px;
+    background-color: #efefef;
+}
+.zlj_process>p{
+    width: 100%;
+    text-align: center;
+    display:inline-block;
+    padding:5px 0;
+    background-color: #fff;
+    font-size: 12px;
+}
+.zlj_process .red{
+    color:red;
+}
+.zlj_process .orange{
+    color:orange;
+}
+.zlj_process .green{
+    color:#2BCD45;
+}
+.zlj_process .grey{
+    color:#ccc;
+}
+.zlj_process img{
+    height:16px;
+    vertical-align: sub;
+}
+.zlj_content {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.btn-box{
+    height:50px;margin:20px;
+}
+.btn-next{
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 16px;
+    font-family: "微软雅黑";
+    font-weight: normal;
+    width: 80%;
+    height: 40px;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    outline: none;
+    border: 1px solid #118EEA;
+    background-color: #118EEA;
+    margin-left: 10%;
+}
+/*助力金合同注册*/
+
+#zlj_contract #zlj_contract_form>div>p{
+    color: #111;
+    font-size: 18px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin: 6px 0;
+    line-height: 20px;
+}
+#zlj_contract #zlj_contract_form>div>input{
+    width:60%;
+    height:35px;
+    box-sizing: border-box;
+    margin-top: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: normal;
+    -webkit-appearance: none;
+}
+
+#zlj_contract #zlj_contract_form>div>span{
+    display: inline-block;
+    width: 30%;
+    box-sizing: border-box;
+    margin:0;
+    font-size: 16px;
+    text-align: right;
+    padding-right: 20px;
+}
+
+#zlj_contract #contract_dl{
+    display: block;
+    text-align: center;
+    text-decoration: underline;
+    margin-top: 15px;
+}
+
+/*助力金进度提醒*/
+.zlj_process{
+    text-align: center;
+    margin-bottom: 10px;
+    background-color: #efefef;
+}
+
+.zlj_process .doing{
+    color:orange;
+}
+.zlj_process .not{
+    color:#111;
+}
+.zlj_process .done{
+    color:#ccc;
+}
+.zlj_process img{
+    height:16px;
+    vertical-align: sub;
+}
+
+#zlj_contract #zlj_contract_form>div>#selece-files{
+    border:0;
+}
+
+.idImgBorder{
+    width: 310px;
+    height: 215px;
+    border: 1px dashed gray;
+    margin: 0 auto;
+}
+#idimg1,#idimg2{
+    margin: 5px;
+}

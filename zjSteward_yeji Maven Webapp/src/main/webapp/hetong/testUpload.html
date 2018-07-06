@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>testUpload</title>
+</head>
+<body>
+<input id="" type="file" accept="image/*" capture="camera">
+<div>------------</div>
+	
+              <div class="content-block" style=" margin:0px;padding: 0px; height:5px;"> </div>   
+              
+              <div class="content-block block-inner" style="background: #FFFFFF">  
+                <figure data-am-widget="figure" class="am am-figure am-figure-default am-no-layout"></figure> 
+                 
+                <div class="item-inner" style="text-align: center;height: 30px;background: #FFFFFF; padding-top: 10px;">身份证正面照片</div>
+                <div class="item-content" style="text-align: center;background: #FFFFFF">    
+                    <div class="am-form-group am-form-file">
+                      <button type="button" class="am-btn am-btn-danger am-btn-sm">
+                        <i class="am-icon-cloud-upload"></i> <img id="img_sfid1" class="img_wrap" src="images\sid1.jpg" onclick=showAction("sfid1",'身份证正面照片')> 
+                      </button>
+                      <input id="upload_sfid1" type="file" accept="image/*;">
+                      <input type="hidden" id="photo_sfid1">
+                    </div>  
+                </div> 
+                <div class="item-inner" style="text-align: center;height: 30px;background: #FFFFFF; padding-top: 10px;">身份证反面照片</div>
+                <div class="item-content" style="text-align: center;background: #FFFFFF">  
+                  <div class="am-article-bd">
+                    <div class="am-form-group am-form-file">
+                      <button type="button" class="am-btn am-btn-danger am-btn-sm">
+                        <i class="am-icon-cloud-upload"></i> <img id="img_sfid2" src="images\sid2.jpg" onclick=showAction("sfid2",'身份证反面照片')> 
+                      </button>
+                      <input id="upload_sfid2" type="file" accept="image/*;" capture="camera">
+                      <input type="hidden" id="photo_sfid2">
+                    </div>
+                  </div> 
+                </div> 
+                
+                <div class="item-inner" style="text-align: center;height: 30px;background: #FFFFFF; padding-top: 10px;">手持身份证照片</div>
+                <div class="item-content" style="text-align: center;background: #FFFFFF"> 
+                  <div class="am-article-bd">
+                    <div class="am-form-group am-form-file">
+                      <button type="button" class="am-btn am-btn-danger am-btn-sm">
+                        <i class="am-icon-cloud-upload"></i> <img id="img_sfid3" src="images\sid3.jpg" onclick=showAction("sfid3",'手持身份证照片')> 
+                      </button>
+                      <input id="upload_sfid3" type="file" accept="image/*;" capture="camera" >
+                      <input type="hidden" id="photo_sfid3">
+                    </div>
+                  </div>
+                </div> 
+
+</body>
+</html>

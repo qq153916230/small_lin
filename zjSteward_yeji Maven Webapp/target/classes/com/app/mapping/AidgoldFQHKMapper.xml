@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.AidgoldFQHKDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.AidgoldFQHK" >
+    <id column="rid" property="rid" jdbcType="INTEGER" />
+    <id column="sno" property="sno" jdbcType="INTEGER" />
+    <result column="balance" property="balance" jdbcType="INTEGER" />
+    <result column="rate" property="rate" jdbcType="DECIMAL" />
+    <result column="fee" property="fee" jdbcType="DECIMAL" />
+    <result column="everymoney" property="everymoney" jdbcType="INTEGER" />
+    <result column="hkmoney" property="hkmoney" jdbcType="DECIMAL" />
+    <result column="hkdate" property="hkdate" jdbcType="DATE" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    rid, sno, balance, rate, fee, everymoney, hkmoney, hkdate, status, gdate
+  </sql>
+  <!-- 批量插入 -->
+  <insert id="insertList" parameterType="java.util.List">
+  	insert into t_zjgj_aidgold_fqhk (rid, sno, balance, rate, fee, everymoney, hkmoney, hkdate, status, gdate)
+    values 
+    <foreach collection="list" item="item" index="index" separator="," >  
+        (#{item.rid,jdbcType=INTEGER}, #{item.sno,jdbcType=INTEGER}, #{item.balance,jdbcType=INTEGER}, 
+      #{item.rate,jdbcType=DECIMAL}, #{item.fee,jdbcType=DECIMAL}, #{item.everymoney,jdbcType=INTEGER}, 
+      #{item.hkmoney,jdbcType=DECIMAL}, #{item.hkdate,jdbcType=DATE}, #{item.status,jdbcType=SMALLINT}, 
+      #{item.gdate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+  <!-- 根据助力金id查找 -->
+  <select id="selectByTid" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_fqhk
+    where rid = #{tid,jdbcType=INTEGER}
+  </select>
+  <!-- 根据rid修改 -->
+  <update id="updateByRidSelective" parameterType="com.app.entity.AidgoldFQHK" >
+    update t_zjgj_aidgold_fqhk
+    <set >
+      <if test="balance != null" >
+        balance = #{balance,jdbcType=INTEGER},
+      </if>
+      <if test="rate != null" >
+        rate = #{rate,jdbcType=DECIMAL},
+      </if>
+      <if test="fee != null" >
+        fee = #{fee,jdbcType=DECIMAL},
+      </if>
+      <if test="everymoney != null" >
+        everymoney = #{everymoney,jdbcType=INTEGER},
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney = #{hkmoney,jdbcType=DECIMAL},
+      </if>
+      <if test="hkdate != null" >
+        hkdate = #{hkdate,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where rid = #{rid,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 删除分期列表 -->
+  <delete id="deleteByTid" parameterType="java.lang.Integer">
+  	delete from t_zjgj_aidgold_fqhk where rid = #{tid}
+  </delete>
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.app.entity.AidgoldFQHKKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_fqhk
+    where rid = #{rid,jdbcType=INTEGER}
+      and sno = #{sno,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.app.entity.AidgoldFQHKKey" >
+    delete from t_zjgj_aidgold_fqhk
+    where rid = #{rid,jdbcType=INTEGER}
+      and sno = #{sno,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.AidgoldFQHK" >
+    insert into t_zjgj_aidgold_fqhk (rid, sno, balance, 
+      rate, fee, everymoney, 
+      hkmoney, hkdate, status, 
+      gdate)
+    values (#{rid,jdbcType=INTEGER}, #{sno,jdbcType=INTEGER}, #{balance,jdbcType=INTEGER}, 
+      #{rate,jdbcType=DECIMAL}, #{fee,jdbcType=DECIMAL}, #{everymoney,jdbcType=INTEGER}, 
+      #{hkmoney,jdbcType=DECIMAL}, #{hkdate,jdbcType=DATE}, #{status,jdbcType=SMALLINT}, 
+      #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.AidgoldFQHK" >
+    insert into t_zjgj_aidgold_fqhk
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="rid != null" >
+        rid,
+      </if>
+      <if test="sno != null" >
+        sno,
+      </if>
+      <if test="balance != null" >
+        balance,
+      </if>
+      <if test="rate != null" >
+        rate,
+      </if>
+      <if test="fee != null" >
+        fee,
+      </if>
+      <if test="everymoney != null" >
+        everymoney,
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney,
+      </if>
+      <if test="hkdate != null" >
+        hkdate,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="rid != null" >
+        #{rid,jdbcType=INTEGER},
+      </if>
+      <if test="sno != null" >
+        #{sno,jdbcType=INTEGER},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=INTEGER},
+      </if>
+      <if test="rate != null" >
+        #{rate,jdbcType=DECIMAL},
+      </if>
+      <if test="fee != null" >
+        #{fee,jdbcType=DECIMAL},
+      </if>
+      <if test="everymoney != null" >
+        #{everymoney,jdbcType=INTEGER},
+      </if>
+      <if test="hkmoney != null" >
+        #{hkmoney,jdbcType=DECIMAL},
+      </if>
+      <if test="hkdate != null" >
+        #{hkdate,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.AidgoldFQHK" >
+    update t_zjgj_aidgold_fqhk
+    <set >
+      <if test="balance != null" >
+        balance = #{balance,jdbcType=INTEGER},
+      </if>
+      <if test="rate != null" >
+        rate = #{rate,jdbcType=DECIMAL},
+      </if>
+      <if test="fee != null" >
+        fee = #{fee,jdbcType=DECIMAL},
+      </if>
+      <if test="everymoney != null" >
+        everymoney = #{everymoney,jdbcType=INTEGER},
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney = #{hkmoney,jdbcType=DECIMAL},
+      </if>
+      <if test="hkdate != null" >
+        hkdate = #{hkdate,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where rid = #{rid,jdbcType=INTEGER}
+      and sno = #{sno,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.AidgoldFQHK" >
+    update t_zjgj_aidgold_fqhk
+    set balance = #{balance,jdbcType=INTEGER},
+      rate = #{rate,jdbcType=DECIMAL},
+      fee = #{fee,jdbcType=DECIMAL},
+      everymoney = #{everymoney,jdbcType=INTEGER},
+      hkmoney = #{hkmoney,jdbcType=DECIMAL},
+      hkdate = #{hkdate,jdbcType=DATE},
+      status = #{status,jdbcType=SMALLINT},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where rid = #{rid,jdbcType=INTEGER}
+      and sno = #{sno,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.tx_resultMapper" >
+  <resultMap id="BaseResultMap" type="com.app.entity.tx_result" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="orderid" property="orderid" jdbcType="VARCHAR" />
+    <result column="bussflowno" property="bussflowno" jdbcType="VARCHAR" />
+    <result column="money" property="money" jdbcType="DECIMAL" />
+    <result column="acctno" property="acctno" jdbcType="VARCHAR" />
+    <result column="acctname" property="acctname" jdbcType="VARCHAR" />
+    <result column="accBankName" property="accbankname" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="status_date" property="statusDate" jdbcType="TIMESTAMP" />
+    <result column="ptimes" property="ptimes" jdbcType="SMALLINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, mid, mobile, orderid, bussflowno, money, acctno, acctname, accBankName, remark, 
+    status, status_date, ptimes
+  </sql>
+  
+ <!--  获取提现总额，status=7代表提现成功 -->
+ <select id="selectTXTotleMoney" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  select sum(money) from t_zjgj_tx_result where status = 7 and status_date like #{date,jdbcType=DATE}
+  </select>
+  <!--  获取提现总次数，status=7代表提现成功 -->
+  <select id="selectTXTotleNum" resultType="java.lang.Integer"  parameterType="java.lang.String">
+  select count(*) from t_zjgj_tx_result where status = 7 and status_date like #{date,jdbcType=DATE}
+  </select>
+  
+  
+  
+  <!-- 搜索功能 查询指定用户，指定日期的信息 -->
+  <!--  获取提现总额，status=7代表提现成功 -->
+ <select id="selectTXTotleMoney2" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  select sum(money) from t_zjgj_tx_result 
+   <where>
+  		<!-- <if test=" 1 = 1 " > -->	status = 7	<!-- </if> -->
+  		<if test="paydate != null" > and status_date like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and mobile = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  <!--  获取提现总次数，status=7代表提现成功 -->
+  <select id="selectTXTotleNum2" resultType="java.lang.Integer"  parameterType="java.lang.String">
+  select count(*) from t_zjgj_tx_result  
+   <where>
+  		<!-- <if test=" 1 = 1 " > -->	status = 7	<!-- </if> -->
+  		<if test="paydate != null" > and status_date like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and mobile = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_tx_result
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_tx_result
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.tx_result" >
+    insert into t_zjgj_tx_result (id, mid, mobile, 
+      orderid, bussflowno, money, 
+      acctno, acctname, accBankName, 
+      remark, status, status_date, 
+      ptimes)
+    values (#{id,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, #{mobile,jdbcType=VARCHAR}, 
+      #{orderid,jdbcType=VARCHAR}, #{bussflowno,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL}, 
+      #{acctno,jdbcType=VARCHAR}, #{acctname,jdbcType=VARCHAR}, #{accbankname,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{statusDate,jdbcType=TIMESTAMP}, 
+      #{ptimes,jdbcType=SMALLINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.tx_result" >
+    insert into t_zjgj_tx_result
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="orderid != null" >
+        orderid,
+      </if>
+      <if test="bussflowno != null" >
+        bussflowno,
+      </if>
+      <if test="money != null" >
+        money,
+      </if>
+      <if test="acctno != null" >
+        acctno,
+      </if>
+      <if test="acctname != null" >
+        acctname,
+      </if>
+      <if test="accbankname != null" >
+        accBankName,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="statusDate != null" >
+        status_date,
+      </if>
+      <if test="ptimes != null" >
+        ptimes,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="orderid != null" >
+        #{orderid,jdbcType=VARCHAR},
+      </if>
+      <if test="bussflowno != null" >
+        #{bussflowno,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="acctno != null" >
+        #{acctno,jdbcType=VARCHAR},
+      </if>
+      <if test="acctname != null" >
+        #{acctname,jdbcType=VARCHAR},
+      </if>
+      <if test="accbankname != null" >
+        #{accbankname,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusDate != null" >
+        #{statusDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ptimes != null" >
+        #{ptimes,jdbcType=SMALLINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.tx_result" >
+    update t_zjgj_tx_result
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="orderid != null" >
+        orderid = #{orderid,jdbcType=VARCHAR},
+      </if>
+      <if test="bussflowno != null" >
+        bussflowno = #{bussflowno,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        money = #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="acctno != null" >
+        acctno = #{acctno,jdbcType=VARCHAR},
+      </if>
+      <if test="acctname != null" >
+        acctname = #{acctname,jdbcType=VARCHAR},
+      </if>
+      <if test="accbankname != null" >
+        accBankName = #{accbankname,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusDate != null" >
+        status_date = #{statusDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ptimes != null" >
+        ptimes = #{ptimes,jdbcType=SMALLINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.tx_result" >
+    update t_zjgj_tx_result
+    set mid = #{mid,jdbcType=INTEGER},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      orderid = #{orderid,jdbcType=VARCHAR},
+      bussflowno = #{bussflowno,jdbcType=VARCHAR},
+      money = #{money,jdbcType=DECIMAL},
+      acctno = #{acctno,jdbcType=VARCHAR},
+      acctname = #{acctname,jdbcType=VARCHAR},
+      accBankName = #{accbankname,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      status_date = #{statusDate,jdbcType=TIMESTAMP},
+      ptimes = #{ptimes,jdbcType=SMALLINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

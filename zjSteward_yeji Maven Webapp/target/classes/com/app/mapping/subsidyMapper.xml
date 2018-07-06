@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.subsidyMapper" >
+  <resultMap id="BaseResultMap" type="com.app.entity.subsidy" >
+    <id column="mid" property="mid" jdbcType="INTEGER" />
+    <id column="smonth" property="smonth" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="period" property="period" jdbcType="INTEGER" />
+    <result column="money_bt" property="moneyBt" jdbcType="DECIMAL" />
+    <result column="money_tx" property="moneyTx" jdbcType="DECIMAL" />
+    <result column="money_sy" property="moneySy" jdbcType="DECIMAL" />
+    <result column="sumprice" property="sumprice" jdbcType="DECIMAL" />
+    <result column="sum_bt" property="sumBt" jdbcType="DECIMAL" />
+    <result column="sdate" property="sdate" jdbcType="DATE" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    mid, smonth, mobile, period, money_bt, money_tx, money_sy, sumprice, sum_bt, sdate, 
+    gdate
+  </sql>
+  
+  <!-- 获取补贴总额 -->
+  <select id="selectSubsidyTotleMoney" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	select sum(money_bt) from t_zjgj_subsidy where sdate = #{date,jdbcType=DATE}
+  </select>
+  
+  <!-- 搜索功能 查询指定用户，指定日期的信息 -->
+  <select id="selectSubsidyTotleMoney2" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	select sum(money_bt) from t_zjgj_subsidy 
+  	<where>
+  		<if test="paydate != null" > sdate like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and mobile = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.app.entity.subsidyKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_subsidy
+    where mid = #{mid,jdbcType=INTEGER}
+      and smonth = #{smonth,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.app.entity.subsidyKey" >
+    delete from t_zjgj_subsidy
+    where mid = #{mid,jdbcType=INTEGER}
+      and smonth = #{smonth,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.subsidy" >
+    insert into t_zjgj_subsidy (mid, smonth, mobile, 
+      period, money_bt, money_tx, 
+      money_sy, sumprice, sum_bt, 
+      sdate, gdate)
+    values (#{mid,jdbcType=INTEGER}, #{smonth,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
+      #{period,jdbcType=INTEGER}, #{moneyBt,jdbcType=DECIMAL}, #{moneyTx,jdbcType=DECIMAL}, 
+      #{moneySy,jdbcType=DECIMAL}, #{sumprice,jdbcType=DECIMAL}, #{sumBt,jdbcType=DECIMAL}, 
+      #{sdate,jdbcType=DATE}, #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.subsidy" >
+    insert into t_zjgj_subsidy
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="smonth != null" >
+        smonth,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="period != null" >
+        period,
+      </if>
+      <if test="moneyBt != null" >
+        money_bt,
+      </if>
+      <if test="moneyTx != null" >
+        money_tx,
+      </if>
+      <if test="moneySy != null" >
+        money_sy,
+      </if>
+      <if test="sumprice != null" >
+        sumprice,
+      </if>
+      <if test="sumBt != null" >
+        sum_bt,
+      </if>
+      <if test="sdate != null" >
+        sdate,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="smonth != null" >
+        #{smonth,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null" >
+        #{period,jdbcType=INTEGER},
+      </if>
+      <if test="moneyBt != null" >
+        #{moneyBt,jdbcType=DECIMAL},
+      </if>
+      <if test="moneyTx != null" >
+        #{moneyTx,jdbcType=DECIMAL},
+      </if>
+      <if test="moneySy != null" >
+        #{moneySy,jdbcType=DECIMAL},
+      </if>
+      <if test="sumprice != null" >
+        #{sumprice,jdbcType=DECIMAL},
+      </if>
+      <if test="sumBt != null" >
+        #{sumBt,jdbcType=DECIMAL},
+      </if>
+      <if test="sdate != null" >
+        #{sdate,jdbcType=DATE},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.subsidy" >
+    update t_zjgj_subsidy
+    <set >
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null" >
+        period = #{period,jdbcType=INTEGER},
+      </if>
+      <if test="moneyBt != null" >
+        money_bt = #{moneyBt,jdbcType=DECIMAL},
+      </if>
+      <if test="moneyTx != null" >
+        money_tx = #{moneyTx,jdbcType=DECIMAL},
+      </if>
+      <if test="moneySy != null" >
+        money_sy = #{moneySy,jdbcType=DECIMAL},
+      </if>
+      <if test="sumprice != null" >
+        sumprice = #{sumprice,jdbcType=DECIMAL},
+      </if>
+      <if test="sumBt != null" >
+        sum_bt = #{sumBt,jdbcType=DECIMAL},
+      </if>
+      <if test="sdate != null" >
+        sdate = #{sdate,jdbcType=DATE},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where mid = #{mid,jdbcType=INTEGER}
+      and smonth = #{smonth,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.subsidy" >
+    update t_zjgj_subsidy
+    set mobile = #{mobile,jdbcType=VARCHAR},
+      period = #{period,jdbcType=INTEGER},
+      money_bt = #{moneyBt,jdbcType=DECIMAL},
+      money_tx = #{moneyTx,jdbcType=DECIMAL},
+      money_sy = #{moneySy,jdbcType=DECIMAL},
+      sumprice = #{sumprice,jdbcType=DECIMAL},
+      sum_bt = #{sumBt,jdbcType=DECIMAL},
+      sdate = #{sdate,jdbcType=DATE},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where mid = #{mid,jdbcType=INTEGER}
+      and smonth = #{smonth,jdbcType=VARCHAR}
+  </update>
+</mapper>

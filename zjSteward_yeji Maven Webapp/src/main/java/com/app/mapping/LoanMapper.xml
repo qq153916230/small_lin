@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.LoanDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.Loan" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="uname" property="uname" jdbcType="VARCHAR" />
+    <result column="work" property="work" jdbcType="VARCHAR" />
+    <result column="house" property="house" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="regdate" property="regdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, mid, phone, uname, work, house, status, regdate
+  </sql>
+  
+  <!-- 查询所有Loan对象 -->
+  <select id="selectAllUser" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_apply_loan
+  </select>
+  
+  <!-- 查询所有新申请对象 -->
+  <select id="selectNewRegister" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_apply_loan
+    where status = 0 order by regdate desc
+  </select>
+  
+  <!-- 搜索 （时间，电话号码） -->
+  <select id="search" resultMap="BaseResultMap" parameterType="Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_apply_loan
+    <!-- where tid = #{tid,jdbcType=INTEGER} -->
+    <where>
+  		<if test="tel != null and tel !=''" > and phone = #{tel,jdbcType=VARCHAR} </if>
+  		<if test="status != null and status !=''" > and status = #{status,jdbcType=VARCHAR} </if>
+  		<if test="from != null and from !=''" >and regdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and regdate &lt;= #{to,jdbcType=DATE} </if>
+  	</where>
+  	limit #{page},#{rows}
+  </select>
+  <!-- 搜索 获取总数 -->
+  <select id="searchCount" resultType="java.lang.Integer" parameterType="Map">
+    select count(*) from t_zjgj_apply_loan
+    <where>
+  		<if test="tel != null and tel !=''" > and phone = #{tel,jdbcType=VARCHAR} </if>
+  		<if test="status != null and status !=''" > and status = #{status,jdbcType=VARCHAR} </if>
+  		<if test="from != null and from !=''" >and regdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and regdate &lt;= #{to,jdbcType=DATE} </if>
+  	</where>
+  </select>
+  
+  <!-- 根据pid批量更新status -->
+  	<update id="updateStatusByTids" parameterType="Map">    
+        update t_zjgj_apply_loan set  
+            status = #{status,jdbcType=SMALLINT} 
+        where tid in     
+        <foreach collection="tids" index="index" item="item" open="(" separator="," close=")" >    
+            #{item}    
+        </foreach>  
+	</update>
+  
+  
+  
+  
+  
+  
+  <!-- 根据tid更新对象 -->
+  <update id="updateByTidSelective" parameterType="com.app.entity.Loan" >
+    update t_zjgj_apply_loan
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="uname != null" >
+        uname = #{uname,jdbcType=VARCHAR},
+      </if>
+      <if test="work != null" >
+        work = #{work,jdbcType=VARCHAR},
+      </if>
+      <if test="house != null" >
+        house = #{house,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="regdate != null" >
+        regdate = #{regdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_apply_loan
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_apply_loan
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.Loan" >
+    insert into t_zjgj_apply_loan (tid, mid, phone, 
+      uname, work, house, 
+      status, regdate)
+    values (#{tid,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, #{phone,jdbcType=VARCHAR}, 
+      #{uname,jdbcType=VARCHAR}, #{work,jdbcType=VARCHAR}, #{house,jdbcType=VARCHAR}, 
+      #{status,jdbcType=SMALLINT}, #{regdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.Loan" >
+    insert into t_zjgj_apply_loan
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="uname != null" >
+        uname,
+      </if>
+      <if test="work != null" >
+        work,
+      </if>
+      <if test="house != null" >
+        house,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="regdate != null" >
+        regdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="uname != null" >
+        #{uname,jdbcType=VARCHAR},
+      </if>
+      <if test="work != null" >
+        #{work,jdbcType=VARCHAR},
+      </if>
+      <if test="house != null" >
+        #{house,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="regdate != null" >
+        #{regdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.Loan" >
+    update t_zjgj_apply_loan
+    set mid = #{mid,jdbcType=INTEGER},
+      phone = #{phone,jdbcType=VARCHAR},
+      uname = #{uname,jdbcType=VARCHAR},
+      work = #{work,jdbcType=VARCHAR},
+      house = #{house,jdbcType=VARCHAR},
+      status = #{status,jdbcType=SMALLINT},
+      regdate = #{regdate,jdbcType=TIMESTAMP}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>

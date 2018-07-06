@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.FDDContractDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.FDDContract" >
+    <id column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="aidgold_id" property="aidgoldId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="contract_id" property="contractId" jdbcType="VARCHAR" />
+    <result column="doc_title" property="docTitle" jdbcType="VARCHAR" />
+    <result column="doc_file" property="docFile" jdbcType="VARCHAR" />
+    <result column="doc_url" property="docUrl" jdbcType="VARCHAR" />
+    <result column="doc_type" property="docType" jdbcType="VARCHAR" />
+    <result column="transaction_id" property="transactionId" jdbcType="VARCHAR" />
+    <result column="download_url" property="downloadUrl" jdbcType="CHAR" />
+    <result column="viewpdf_url" property="viewpdfUrl" jdbcType="CHAR" />
+    <result column="cdate" property="cdate" jdbcType="TIMESTAMP" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    pid, aidgold_id, user_id, contract_id, doc_title, doc_file, doc_url, doc_type, transaction_id, 
+    download_url, viewpdf_url, cdate, gdate
+  </sql>
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(*) from t_zjgj_aidgold_contract 
+  	<where>
+  		<if test="from != null and to != null" >and cdate between #{from} and #{to} </if>
+  		<if test="userId != ''" > and user_id = #{userId} </if>
+  		<if test="aidgoldId != ''" > and aidgold_id = #{aidgoldId} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from t_zjgj_aidgold_contract
+  	<where>
+  		<if test="from != null and to != null" >and cdate between #{from} and #{to} </if>
+  		<if test="userId != ''" > and user_id = #{userId} </if>
+  		<if test="aidgoldId != ''" > and aidgold_id = #{aidgoldId} </if>
+  	</where>
+  	order by cdate desc limit #{page},#{rows}
+  </select>
+  
+  <!-- 根据交易号查询合同编号 -->
+  <select id="queryCidByTid" parameterType="java.lang.String" resultType="java.lang.String">
+  	select contract_id from t_zjgj_aidgold_contract where transaction_id = {transaction_id,jdbcType=VARCHAR}
+  </select>
+  <!-- 根据助力金id获取一条记录 -->
+  <select id="selectByAidgoldId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_contract
+    where aidgold_id = #{aidgoldId,jdbcType=INTEGER}
+  </select>
+  <!-- 根据合同编号获取合同对象 -->
+  <select id="selectByContractID" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_contract
+    where contract_id = #{contractID,jdbcType=VARCHAR}
+  </select>
+  
+  
+  
+  
+  <!-- 根据助力金修改 -->
+  <update id="updateByAidgoldIdSelective" parameterType="com.app.entity.FDDContract" >
+    update t_zjgj_aidgold_contract
+    <set >
+      <if test="aidgoldId != null" >
+        aidgold_id = #{aidgoldId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="contractId != null" >
+        contract_id = #{contractId,jdbcType=VARCHAR},
+      </if>
+      <if test="docTitle != null" >
+        doc_title = #{docTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="docFile != null" >
+        doc_file = #{docFile,jdbcType=VARCHAR},
+      </if>
+      <if test="docUrl != null" >
+        doc_url = #{docUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="docType != null" >
+        doc_type = #{docType,jdbcType=VARCHAR},
+      </if>
+      <if test="transactionId != null" >
+        transaction_id = #{transactionId,jdbcType=VARCHAR},
+      </if>
+      <if test="downloadUrl != null" >
+        download_url = #{downloadUrl,jdbcType=CHAR},
+      </if>
+      <if test="viewpdfUrl != null" >
+        viewpdf_url = #{viewpdfUrl,jdbcType=CHAR},
+      </if>
+      <if test="cdate != null" >
+        cdate = #{cdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where aidgold_id = #{aidgoldId,jdbcType=INTEGER}
+  </update>
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_contract
+    where pid = #{pid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_aidgold_contract
+    where pid = #{pid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.FDDContract" >
+    insert into t_zjgj_aidgold_contract (pid, aidgold_id, user_id, 
+      contract_id, doc_title, doc_file, 
+      doc_url, doc_type, transaction_id, 
+      download_url, viewpdf_url, cdate, 
+      gdate)
+    values (#{pid,jdbcType=INTEGER}, #{aidgoldId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
+      #{contractId,jdbcType=VARCHAR}, #{docTitle,jdbcType=VARCHAR}, #{docFile,jdbcType=VARCHAR}, 
+      #{docUrl,jdbcType=VARCHAR}, #{docType,jdbcType=VARCHAR}, #{transactionId,jdbcType=VARCHAR}, 
+      #{downloadUrl,jdbcType=CHAR}, #{viewpdfUrl,jdbcType=CHAR}, #{cdate,jdbcType=TIMESTAMP}, 
+      #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.FDDContract" >
+    insert into t_zjgj_aidgold_contract
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="pid != null" >
+        pid,
+      </if>
+      <if test="aidgoldId != null" >
+        aidgold_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="contractId != null" >
+        contract_id,
+      </if>
+      <if test="docTitle != null" >
+        doc_title,
+      </if>
+      <if test="docFile != null" >
+        doc_file,
+      </if>
+      <if test="docUrl != null" >
+        doc_url,
+      </if>
+      <if test="docType != null" >
+        doc_type,
+      </if>
+      <if test="transactionId != null" >
+        transaction_id,
+      </if>
+      <if test="downloadUrl != null" >
+        download_url,
+      </if>
+      <if test="viewpdfUrl != null" >
+        viewpdf_url,
+      </if>
+      <if test="cdate != null" >
+        cdate,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="pid != null" >
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="aidgoldId != null" >
+        #{aidgoldId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="contractId != null" >
+        #{contractId,jdbcType=VARCHAR},
+      </if>
+      <if test="docTitle != null" >
+        #{docTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="docFile != null" >
+        #{docFile,jdbcType=VARCHAR},
+      </if>
+      <if test="docUrl != null" >
+        #{docUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="docType != null" >
+        #{docType,jdbcType=VARCHAR},
+      </if>
+      <if test="transactionId != null" >
+        #{transactionId,jdbcType=VARCHAR},
+      </if>
+      <if test="downloadUrl != null" >
+        #{downloadUrl,jdbcType=CHAR},
+      </if>
+      <if test="viewpdfUrl != null" >
+        #{viewpdfUrl,jdbcType=CHAR},
+      </if>
+      <if test="cdate != null" >
+        #{cdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.FDDContract" >
+    update t_zjgj_aidgold_contract
+    <set >
+      <if test="aidgoldId != null" >
+        aidgold_id = #{aidgoldId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="contractId != null" >
+        contract_id = #{contractId,jdbcType=VARCHAR},
+      </if>
+      <if test="docTitle != null" >
+        doc_title = #{docTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="docFile != null" >
+        doc_file = #{docFile,jdbcType=VARCHAR},
+      </if>
+      <if test="docUrl != null" >
+        doc_url = #{docUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="docType != null" >
+        doc_type = #{docType,jdbcType=VARCHAR},
+      </if>
+      <if test="transactionId != null" >
+        transaction_id = #{transactionId,jdbcType=VARCHAR},
+      </if>
+      <if test="downloadUrl != null" >
+        download_url = #{downloadUrl,jdbcType=CHAR},
+      </if>
+      <if test="viewpdfUrl != null" >
+        viewpdf_url = #{viewpdfUrl,jdbcType=CHAR},
+      </if>
+      <if test="cdate != null" >
+        cdate = #{cdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where pid = #{pid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.FDDContract" >
+    update t_zjgj_aidgold_contract
+    set aidgold_id = #{aidgoldId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      contract_id = #{contractId,jdbcType=VARCHAR},
+      doc_title = #{docTitle,jdbcType=VARCHAR},
+      doc_file = #{docFile,jdbcType=VARCHAR},
+      doc_url = #{docUrl,jdbcType=VARCHAR},
+      doc_type = #{docType,jdbcType=VARCHAR},
+      transaction_id = #{transactionId,jdbcType=VARCHAR},
+      download_url = #{downloadUrl,jdbcType=CHAR},
+      viewpdf_url = #{viewpdfUrl,jdbcType=CHAR},
+      cdate = #{cdate,jdbcType=TIMESTAMP},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where pid = #{pid,jdbcType=INTEGER}
+  </update>
+</mapper>

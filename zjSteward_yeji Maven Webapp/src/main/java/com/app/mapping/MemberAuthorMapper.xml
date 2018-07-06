@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.MemberAuthorDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.MemberAuthor" >
+    <id column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="sname" property="sname" jdbcType="VARCHAR" />
+    <result column="idno" property="idno" jdbcType="VARCHAR" />
+    <result column="idtype" property="idtype" jdbcType="SMALLINT" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="imgfront" property="imgfront" jdbcType="VARCHAR" />
+    <result column="imgback" property="imgback" jdbcType="VARCHAR" />
+    <result column="imghand" property="imghand" jdbcType="VARCHAR" />
+    <result column="imgagent" property="imgagent" jdbcType="VARCHAR" />
+    <result column="customer_id" property="customerId" jdbcType="VARCHAR" />
+    <result column="cdate" property="cdate" jdbcType="TIMESTAMP" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+    
+    <!-- join column -->
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="zip_code" property="zipCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    mid, sname, idno, idtype, mobile, imgfront, imgback, imghand, customer_id, cdate, 
+    gdate
+  </sql>
+  <sql id="join_List" >
+    sname, idno, idtype, mobile, imgfront, imgback, imghand, customer_id, cdate, 
+    gdate,
+    <!-- join part -->
+    address, zip_code
+  </sql>
+  <!-- 查询匹配数据 -->
+  <select id="selectMatch" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	select <include refid="Base_Column_List"/> from t_zjgj_member_author where 
+  		sname = #{sname,jdbcType=VARCHAR} and idno = #{idno,jdbcType=VARCHAR} and mobile = #{mobile,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(*) from t_zjgj_member_author 
+  	<where>
+  		<if test="from != null and to != null" >and cdate between #{from} and #{to} </if>
+  		<if test="sname != ''" > and sname = #{sname} </if>
+  		<if test="mobile != ''" > and mobile = #{mobile} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	SELECT a.mid, <include refid="join_List" /> FROM 
+    (SELECT <include refid="Base_Column_List"/> FROM t_zjgj_member_author
+    <where>
+    	<if test="from != null and to != null" >and cdate between #{from} and #{to} </if>
+  		<if test="sname != ''" > and sname = #{sname} </if>
+  		<if test="mobile != ''" > and mobile = #{mobile} </if>
+  	</where>
+    ) AS a
+    LEFT JOIN
+    (SELECT mid, address, zip_code FROM t_zjgj_member_addr 
+    <where>
+    	<if test="from != null and to != null" >and update_date between #{from} and #{to} </if>
+  		<if test="mobile != ''" > and tel = #{mobile} </if>
+  	</where>
+    ) AS b
+    ON a.mid = b.mid
+  	<where>
+  		<if test="from != null and to != null" >and cdate between #{from} and #{to} </if>
+  		<if test="sname != ''" > and sname = #{sname} </if>
+  		<if test="mobile != ''" > and mobile = #{mobile} </if>
+  	</where>
+  	order by cdate desc limit #{page},#{rows}
+  </select>
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_member_author
+    where mid = #{mid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_member_author
+    where mid = #{mid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.MemberAuthor" >
+    insert into t_zjgj_member_author (mid, sname, idno, 
+      idtype, mobile, imgfront, 
+      imgback, imghand, customer_id, 
+      cdate, gdate)
+    values (#{mid,jdbcType=INTEGER}, #{sname,jdbcType=VARCHAR}, #{idno,jdbcType=VARCHAR}, 
+      #{idtype,jdbcType=SMALLINT}, #{mobile,jdbcType=VARCHAR}, #{imgfront,jdbcType=VARCHAR}, 
+      #{imgback,jdbcType=VARCHAR}, #{imghand,jdbcType=VARCHAR}, #{customerId,jdbcType=VARCHAR}, 
+      #{cdate,jdbcType=TIMESTAMP}, #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.MemberAuthor" >
+    insert into t_zjgj_member_author
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="sname != null" >
+        sname,
+      </if>
+      <if test="idno != null" >
+        idno,
+      </if>
+      <if test="idtype != null" >
+        idtype,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="imgfront != null" >
+        imgfront,
+      </if>
+      <if test="imgback != null" >
+        imgback,
+      </if>
+      <if test="imghand != null" >
+        imghand,
+      </if>
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="cdate != null" >
+        cdate,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="sname != null" >
+        #{sname,jdbcType=VARCHAR},
+      </if>
+      <if test="idno != null" >
+        #{idno,jdbcType=VARCHAR},
+      </if>
+      <if test="idtype != null" >
+        #{idtype,jdbcType=SMALLINT},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="imgfront != null" >
+        #{imgfront,jdbcType=VARCHAR},
+      </if>
+      <if test="imgback != null" >
+        #{imgback,jdbcType=VARCHAR},
+      </if>
+      <if test="imghand != null" >
+        #{imghand,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=VARCHAR},
+      </if>
+      <if test="cdate != null" >
+        #{cdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.MemberAuthor" >
+    update t_zjgj_member_author
+    <set >
+      <if test="sname != null" >
+        sname = #{sname,jdbcType=VARCHAR},
+      </if>
+      <if test="idno != null" >
+        idno = #{idno,jdbcType=VARCHAR},
+      </if>
+      <if test="idtype != null" >
+        idtype = #{idtype,jdbcType=SMALLINT},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="imgfront != null" >
+        imgfront = #{imgfront,jdbcType=VARCHAR},
+      </if>
+      <if test="imgback != null" >
+        imgback = #{imgback,jdbcType=VARCHAR},
+      </if>
+      <if test="imghand != null" >
+        imghand = #{imghand,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=VARCHAR},
+      </if>
+      <if test="cdate != null" >
+        cdate = #{cdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where mid = #{mid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.MemberAuthor" >
+    update t_zjgj_member_author
+    set sname = #{sname,jdbcType=VARCHAR},
+      idno = #{idno,jdbcType=VARCHAR},
+      idtype = #{idtype,jdbcType=SMALLINT},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      imgfront = #{imgfront,jdbcType=VARCHAR},
+      imgback = #{imgback,jdbcType=VARCHAR},
+      imghand = #{imghand,jdbcType=VARCHAR},
+      customer_id = #{customerId,jdbcType=VARCHAR},
+      cdate = #{cdate,jdbcType=TIMESTAMP},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where mid = #{mid,jdbcType=INTEGER}
+  </update>
+</mapper>

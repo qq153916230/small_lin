@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.CommonDao" >
+
+	<!-- t_zjgj_card 拼接 t_bank 银行的 url -->
+	<select id="selectCardList" parameterType="java.lang.Integer" resultType="java.util.Map">
+	 	SELECT cid, MID, cardno, bank, MASTER, zdmonth, zdday, hkday, period, hkprice, yxdate, cxpass, paypass, sncode, gdate, ischeck ,pic_url FROM (
+			(SELECT cid, MID, cardno, bank, MASTER, zdmonth, zdday, hkday, period,
+				hkprice, yxdate, cxpass, paypass, sncode, gdate, ischeck FROM `t_zjgj_card` 
+				WHERE mid = #{mid} ) AS a
+			LEFT JOIN
+			(SELECT ch_name, pic_url FROM `t_bank` ) AS b
+			ON a.bank = b.ch_name
+		)
+	</select>
+	
+	<!-- t_app_login_check 插入app登入设备信息 -->
+	<insert id="insertLoginMobile" parameterType="java.util.Map">
+		INSERT INTO `t_app_login_check` (`mid`,`mobile_sys`, `mobile_type`, `mobile_no`, 
+			`login_area`, `login_date`) VALUES (#{mid}, #{mobile_sys}, #{mobile_type}, #{mobile_no}, 
+			#{login_area}, #{login_date}); 
+	</insert>
+	<!-- t_app_login_check 获取app登入信息 -->
+	<select id="selectLoginMobileByMid" parameterType="java.lang.Integer" resultType="java.util.Map">
+		SELECT tid, MID, mobile_sys, mobile_type, mobile_no, 
+			login_area,login_date FROM `t_app_login_check` WHERE MID = #{mid} ORDER BY gdate DESC
+	</select>
+	<!-- t_app_version 插入版本号 -->
+	<!-- t_app_version 查询版本号 -->
+	<select id="selectAppVersionBySystem" parameterType="java.lang.String" resultType="java.util.Map">
+		SELECT tid, apk_name, version_name, version_no, version_sys, remark,
+			update_force, cdate FROM `t_app_version` WHERE version_sys = #{sys} 
+			<if test="ver != ''">and version_name = #{ver}</if>
+			ORDER BY tid DESC
+	</select>
+	
+	<!-- t_xy_spider_mobile 查询通讯爬虫结果 -->
+	<select id="selectSpiderMobile" parameterType="java.lang.String" resultType="java.util.Map">
+		select mobile, trade_no, is_done, is_valid, gdate from t_xy_spider_mobile where mobile = #{mobile}
+	</select>
+	
+	<!-- t_xy_spider_email 查询邮箱爬取结果 -->
+	<select id="selectSpiderEmail" parameterType="int" resultType="java.util.Map">
+		select tid, trade_no, email_no, status, cdate, gdate from t_xy_spider_email where mid = #{mid}
+	</select>
+	
+	<!-- t_zjgj_member 修改密码 -->
+	<update id="updateMemberPass" >
+		update t_zjgj_member set UserPass = #{pass} where mobile = #{mobile}
+	</update>
+	
+	<!-- t_zjgj_member 匹配手机 -->
+	<select id="matchMobile" parameterType="String" resultType="int">
+		select count(1) from t_zjgj_member where mobile = #{mobile}
+	</select>
+	
+	<!-- t_xy_spider_mobile 根据手机查询通讯爬虫订单号 -->
+	<select id="selectTradeNoByMobile" resultType="java.lang.String" parameterType="java.lang.String">
+		select trade_no from t_xy_spider_mobile where mobile = #{mobile}
+	</select>
+	
+	<!-- `t_zjgj_member` 根据mid查手机 -->
+	<select id="selectMobileByMidFromMember" parameterType="int" resultType="String">
+		select mobile from t_zjgj_member where mid = #{mid}
+	</select>
+	
+	<!-- `t_zjgj_member` 根据账号密码查对象 -->
+	<select id="selectMemberByUnameAndPass" resultType="Map">
+		select mid, username, userpass, Regdate from t_zjgj_member where username = #{username} and userpass = #{password}
+	</select>
+	
+	<!-- `t_zjgj_user` 根据账号密码查对象 -->
+	<select id="selectSysUserByUnameAndPass" resultType="Map">
+		select tid, username, userpass from t_sys_user where username = #{username} and userpass = #{password}
+	</select>
+	
+	<!-- t_credit_msg 查询信用信息 通过mid -->
+	<select id="selectCreditMsgByMid" parameterType="int" resultType="Map">
+		select mid, user_age, overdue_no_repay, overdue_num, online_time, connect_6m_all,
+		 connect_num, law_num, risk_call, debt_count, debt_new_old,
+		 debt_low, debt_middle, gdate from t_credit_msg where mid = #{mid}
+	</select>
+	
+	<!-- t_credit_msg 插入新记录 -->
+	<insert id="insert_credit_msg" parameterType="int" >
+		insert into t_credit_msg (mid) value (#{mid})
+	</insert>
+	
+	<!-- t_credit_msg 更新记录 -->
+	<update id="update_credit_msg" parameterType="Map">
+		update t_credit_msg set ${credit_type} = #{count} where mid = #{mid}
+	</update>
+	
+	<!-- 更新 t_xy_spider_person is_done is_valid 为1 -->
+	<update id="update_spider_person_status" parameterType="String">
+		update `t_xy_spider_person` set `is_done` = '1', `is_valid` = '1' where `trade_no` = #{trade_no};
+	</update>
+	
+	<!-- 更新 `t_xy_spider_email` 的status -->
+	<update id="update_spider_email_status">
+		update `t_xy_spider_email` set `status` = #{status} where `trade_no` = #{trade_no};
+	</update>
+	
+	<!-- 更新 t_xy_spider_mobile is_done is_valid 为1 -->
+	<update id="update_spider_mobile_status" parameterType="String">
+		update `t_xy_spider_mobile` set `is_done` = '1', `is_valid` = '1' where `trade_no` = #{trade_no};
+	</update>
+	
+	<!-- 通过复合主键 更新 t_xy_spider_person -->
+	<update id="updateSpiderPersonByColumnName" parameterType="Map">
+		update `t_xy_spider_person` set ${columnName} = #{value} where `mid` = #{mid} and `txn_type` = #{txn_type};
+	</update>
+	
+	<!-- 通过mid获取 t_xy_spider_person -->
+	<select id="select_spider_person_msg_by_mid" parameterType="int" resultType="Map">
+		select mid, txn_type, trade_no, is_done, is_valid,is_used, cdate from  `t_xy_spider_person` where mid = #{mid}
+	</select>
+	
+	<!-- app获取服务列表 -->
+	<select id="selectServerListByMid" parameterType="int" resultType="String">
+		select list_content from `t_app_server_list` where mid = #{mid}
+	</select>
+	
+	<!-- `t_zjgj_card` 根据卡号查询卡数 -->
+	<select id="selectCountByCardNo" parameterType="String" resultType="int">
+		select count(1) from `t_zjgj_card` where `cardno` = #{cardno}
+	</select>
+	
+	<!-- `t_xy_spider_email` 插入邮箱 -->
+	<insert id="insertXinyanEmail" parameterType="Map">
+		insert into `t_xy_spider_email` (`mid`, `trans_id`, `trade_no`, `status`, `cdate`) 
+			values (#{mid}, #{trans_id}, #{trade_no}, #{status}, #{cdate});
+	</insert>
+	
+	<!-- t_xy_spider_person 查询是否存在记录 -->
+	<select id="selectCountSpiderPerson" resultType="int">
+		SELECT count(1) FROM `t_xy_spider_person` WHERE `mid` = #{mid} AND `txn_type` = #{txn_type};
+	</select>
+	
+	<!-- t_xy_spider_person 插入数据  -->
+	<insert id="insertSpiderPerson" parameterType="Map">
+		INSERT INTO `t_xy_spider_person` (`mid`, `txn_type`, `trans_id`, `trade_no`, `is_done`, `is_valid`, `cdate`) 
+				VALUES (#{mid}, #{txn_type}, #{trans_id}, #{trade_no}, '0', '0', #{cdate});
+	</insert>
+	
+	<!-- t_xy_spider_person 替换数据 -->
+	<update id="replaceSpiderPerson">
+		UPDATE `t_xy_spider_person` SET `trans_id` = #{trans_id} , `trade_no` = #{trade_no} , 
+			`is_done` = '0' , `is_valid` = '0' WHERE `mid` = #{mid} AND `txn_type` = #{txn_type};
+	</update>
+	
+	<!-- t_xy_spider_person 根据mid type 查询数据 -->
+	<select id="selectSpiderPerson" resultType="Map">
+		select mid, txn_type, trade_no, is_done, is_valid, is_used, cdate, gdate from  `t_xy_spider_person`	
+			WHERE `mid` = #{mid} AND `txn_type` = #{type};
+	</select>
+	
+	<!-- t_zjgj_member -->
+	<select id="selectMemberByMid" parameterType="int" resultType="Map">
+		select mid, username, nick, userrole, verfiy_flag, mobile from `t_zjgj_member` where `mid` = #{mid}
+	</select>
+	
+	<!-- t_zjgj_member 根据mid获取用户额度 -->
+	<select id="selectMemberXygdByMid" parameterType="int" resultType="Integer">
+		select real_xygd from `t_zjgj_member` where `mid` = #{mid}
+	</select>
+	
+	<!-- 插入邮箱账号 -->
+	<update id="insertSpiderEmailAccount" parameterType="Map">
+		update `t_xy_spider_email` set `email_no` = #{account} where `trade_no` = #{trade_no}
+	</update>
+	
+	<!-- 根据手机号 查询 `t_rc_pos_assign` -->
+	<select id="selectCountPosAssign" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM `t_rc_pos_assign` WHERE merchantcode = #{mobile}
+	</select>
+	
+	<!-- 根据手机号 查询 `t_rc_pos` -->
+	<select id="selectCountPos" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM `t_rc_pos` WHERE merchantcode = #{mobile}
+	</select>
+	
+	<!-- t_xy_spider_person 根据订单号查询mid -->
+	<select id="selectMidFromSpiderPersonByOrder" parameterType="String" resultType="Integer">
+		select mid from `t_xy_spider_person` where trade_no = #{order}
+	</select>
+	
+	<!-- `t_zjgj_aidgold_telog_xy` -->
+	<select id="selectCountFromTelogXyByMidType" resultType="int">
+		select count(1) from `t_zjgj_aidgold_telog_xy` where mid = #{mid} and te_type = #{type}
+	</select>
+	<insert id="insertTelogXy" parameterType="Map">
+		INSERT INTO `t_zjgj_aidgold_telog_xy` (`mid`, `te_type`, `te_order`, `totle_limit`, `add_limit`, `remark`) 
+			VALUES (#{mid}, #{te_type}, #{te_order}, #{totle_limit}, #{add_limit}, #{remark});
+	</insert>
+	
+	<!-- t_zjgj_member_bank -->
+	<select id="selectMemberBankByMid" parameterType="int" resultType="Map">
+		SELECT mid, mobile, bank_open, account_name, account_number 
+			FROM `t_zjgj_member_bank` WHERE `mid` = #{mid}; 
+	</select>
+	
+	<!-- `wx_order` 添加 -->
+	<insert id="insertWXOrder" parameterType="Map">
+		INSERT INTO `wx_order` (`tradetype`, `orderid`, `body`, 
+			`openid`, `totalfee`, `time_start`, `time_expire`, 
+			`goodstag`, `orderdate`, `attach`, `appid`, `mchid`, `prepay_id`) 
+			VALUES ('APP', #{orderid}, #{body}, 
+			#{openid}, #{totalfee}, '', '', 
+			'1', #{orderdate}, #{mobile}, #{appid}, #{mchid}, #{prepay_id});
+	</insert>
+	<!-- 根据订单号修改状态 -->
+	<update id="updateWXOrderStatus" parameterType="String">
+		UPDATE `wx_order` SET `ispay` = '1' WHERE `orderid` = #{orderid}; 
+	</update>
+	<!-- 根据订单查看状态 -->
+	<select id="selectWXOrderStatus" parameterType="String" resultType="int">
+		select ispay from `wx_order` WHERE `orderid` = #{orderid};
+	</select>
+	
+	<!-- t_zjgj_epay_payment 添加 -->
+	<insert id="insertEpayPayment" parameterType="Map">
+		insert into t_zjgj_epay_payment (rid, mid, 
+	      orderid, amount, ptype, 
+	      mobile, idno, AcctNo, AcctName, 
+	      AcctBank, AcctBankName, skdate, 
+	      status, remark, thirdvoucher, 
+	      bussSeqNo, ptimes, overday, overmoney, attr1
+	      )
+	    values (#{rid}, #{mid}, #{orderid}, #{totalfee}, #{ptype}, 
+	      #{mobile}, "", #{account_number}, #{account_name}, 
+	      "0000", #{bank_open}, #{orderdate}, 
+	      "0", #{body}, "", 
+	      "", "0", #{overday}, #{overmoney},#{period}
+	      )
+	</insert>
+	
+	<!-- t_zjgj_tx_reward 根据ordercode查询 -->
+	<select id="selectTXRewardByOrdercode" parameterType="String" resultType="Map">
+		SELECT tid, ordercode, reward, possn, mid, nick, mobile, role, posnum, rate, rdate, gdate 
+			FROM `t_zjgj_tx_reward`
+			<where>
+				<if test="ordercode != '' and ordercode != 'null' ">`ordercode` = #{ordercode}</if>
+				<if test="possn != '' and possn != 'null' ">and `possn` = #{possn}</if>
+				<if test=" 1 ==1 ">and `posnum` &lt; 200</if>
+			</where>
+				ORDER BY `rdate` DESC LIMIT 0, 100; 
+	</select>
+	
+	<!--  t_drp_tixian_apply  -->
+	<select id="selectTXApply_cft" parameterType="Map" resultType="Map">
+		SELECT tid, mid, txcode, money, txtype, status, ordercode, sdate 
+		FROM `t_drp_tixian_apply` 
+		<where>
+			`status` = #{status} 
+			<if test="dateFrom != '' and dateTo != '' ">and sdate between #{dateFrom} and #{dateTo}</if>
+		</where>
+		LIMIT #{page}, #{rows};
+	</select>
+	
+	<!-- 根据tid批量更新 t_drp_tixian_apply status -->
+	<update id="updateDrpTixianApplyStatus" parameterType="Map">    
+		update `t_drp_tixian_apply` set status = #{status} where tid in     
+		<foreach collection="tids" index="index" item="item" open="(" separator="," close=")" >    
+			#{item}    
+		</foreach>  
+	</update>
+	
+	<!-- 根据tid 查询t_drp_tixian_apply记录 -->
+	<select id="selectDrpTixianApplyStatusByTids" resultType="Map">
+		SELECT tid, mid, txcode, money, txtype, status, ordercode, sdate 
+		FROM `t_drp_tixian_apply` WHERE `tid` IN 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")" >
+			#{item}
+		</foreach> 
+	</select>
+	
+	<!-- 批量保存 t_drp_tixian_apply -->
+	<insert id="insertDrpTixianApply">
+		insert  into `t_zjgj_tx` 
+		(`order_code`,`allocation_code`,`withdraw_code`,`mid`,
+		`money`,`dzmoney`,`source`,`period`,`status`, `rsp_code`,`rsp_msg`,
+		`status_date`,`member_bank_id`,`create_by`,`create_date`,
+		`update_by`,`update_date`,`remarks`,`del_flag`,`txtype`) 
+		values 
+		<foreach collection="list" index="index" item="item" separator=",">
+			(#{item.txcode}, #{item.txcode}, #{item.txcode}, #{item.mid},
+			 #{item.money}, #{item.dzmoney}, #{item.source}, #{item.period}, #{item.status}, NULL,NULL,
+			 #{item.cdate}, NULL,NULL, #{item.cdate},
+			NULL,NULL,NULL, #{item.del_flag}, #{item.txtype})
+		</foreach>
+	</insert>
+	
+	<!-- `t_zjgj_subsidy_pos` 列表查询 -->
+	<select id="selectSubsidyPosList" parameterType="Map" resultType="Map">
+		SELECT possn, isdabiao, dabiaodate, gdate 
+			FROM `t_zjgj_subsidy_pos`
+			<where>
+				<if test="possn != '' ">`possn` = #{possn}</if>
+				<if test="dateFrom != '' and dateTo != '' ">
+					and dabiaodate between #{dateFrom} and #{dateTo}
+				</if>
+			</where>
+				ORDER BY `dabiaodate` DESC LIMIT #{page}, #{rows}; 
+	</select>
+	
+	<!-- t_plat_market 保存 -->
+	<insert id="insertPlatMarket" parameterType="Map">
+		INSERT INTO `t_plat_market` 
+		(`mid`, `mobile`, `marketid`, `market_group`, `market_param`, `begindate`, `enddate`, `remark`) VALUES 
+		(#{mid}, #{mobile}, #{marketid}, #{market_group}, #{market_param}, #{begindate}, #{enddate}, #{remark}); 
+	</insert>
+	
+  
+</mapper>

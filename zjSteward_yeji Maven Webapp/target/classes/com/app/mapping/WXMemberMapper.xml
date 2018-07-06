@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.WXMemberDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.WXMember" >
+    <id column="m_id" property="mId" jdbcType="INTEGER" />
+    <result column="m_pass" property="mPass" jdbcType="VARCHAR" />
+    <result column="usernick" property="usernick" jdbcType="VARCHAR" />
+    <result column="tel" property="tel" jdbcType="VARCHAR" />
+    <result column="gsd" property="gsd" jdbcType="VARCHAR" />
+    <result column="real_name" property="realName" jdbcType="VARCHAR" />
+    <result column="gen_time" property="genTime" jdbcType="TIMESTAMP" />
+    <result column="extend_one" property="extendOne" jdbcType="VARCHAR" />
+    <result column="extend_two" property="extendTwo" jdbcType="VARCHAR" />
+    <result column="extend_three" property="extendThree" jdbcType="VARCHAR" />
+    <result column="openid" property="openid" jdbcType="VARCHAR" />
+    <result column="fopenid" property="fopenid" jdbcType="VARCHAR" />
+    <result column="headimgurl" property="headimgurl" jdbcType="VARCHAR" />
+    <result column="img_url" property="imgUrl" jdbcType="VARCHAR" />
+    <result column="ewm_url" property="ewmUrl" jdbcType="VARCHAR" />
+    <result column="erweimaid" property="erweimaid" jdbcType="INTEGER" />
+    <result column="AttentionDate" property="attentiondate" jdbcType="TIMESTAMP" />
+    <result column="AttentionTimes" property="attentiontimes" jdbcType="INTEGER" />
+    <result column="vip_level" property="vipLevel" jdbcType="TINYINT" />
+    <result column="state" property="state" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    m_id, m_pass, usernick, tel, gsd, real_name, gen_time, extend_one, extend_two, extend_three, 
+    openid, fopenid, headimgurl, img_url, ewm_url, erweimaid, AttentionDate, AttentionTimes, 
+    vip_level, state
+  </sql>
+  
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(*) from wx_member 
+  	<where>
+  		<if test="from != null and to != null" >and gen_time between #{from} and #{to} </if>
+  		<if test="tel != ''" > and tel = #{tel} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from wx_member
+  	<where>
+  		<if test="from != null and to != null" >and gen_time between #{from} and #{to} </if>
+  		<if test="tel != ''" > and tel = #{tel} </if> 
+  	</where>
+  	order by gen_time desc limit #{page},#{rows}
+  </select>
+  <!-- 更新归属地 -->
+  <update id="updateByTel">
+  	UPDATE wx_member SET gsd = #{gsd,jdbcType=VARCHAR} where tel = #{phone,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from wx_member
+    where m_id = #{mId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from wx_member
+    where m_id = #{mId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.WXMember" >
+    insert into wx_member (m_id, m_pass, usernick, 
+      tel, gsd, real_name, 
+      gen_time, extend_one, extend_two, 
+      extend_three, openid, fopenid, 
+      headimgurl, img_url, ewm_url, 
+      erweimaid, AttentionDate, AttentionTimes, 
+      vip_level, state)
+    values (#{mId,jdbcType=INTEGER}, #{mPass,jdbcType=VARCHAR}, #{usernick,jdbcType=VARCHAR}, 
+      #{tel,jdbcType=VARCHAR}, #{gsd,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR}, 
+      #{genTime,jdbcType=TIMESTAMP}, #{extendOne,jdbcType=VARCHAR}, #{extendTwo,jdbcType=VARCHAR}, 
+      #{extendThree,jdbcType=VARCHAR}, #{openid,jdbcType=VARCHAR}, #{fopenid,jdbcType=VARCHAR}, 
+      #{headimgurl,jdbcType=VARCHAR}, #{imgUrl,jdbcType=VARCHAR}, #{ewmUrl,jdbcType=VARCHAR}, 
+      #{erweimaid,jdbcType=INTEGER}, #{attentiondate,jdbcType=TIMESTAMP}, #{attentiontimes,jdbcType=INTEGER}, 
+      #{vipLevel,jdbcType=TINYINT}, #{state,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.WXMember" >
+    insert into wx_member
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="mId != null" >
+        m_id,
+      </if>
+      <if test="mPass != null" >
+        m_pass,
+      </if>
+      <if test="usernick != null" >
+        usernick,
+      </if>
+      <if test="tel != null" >
+        tel,
+      </if>
+      <if test="gsd != null" >
+        gsd,
+      </if>
+      <if test="realName != null" >
+        real_name,
+      </if>
+      <if test="genTime != null" >
+        gen_time,
+      </if>
+      <if test="extendOne != null" >
+        extend_one,
+      </if>
+      <if test="extendTwo != null" >
+        extend_two,
+      </if>
+      <if test="extendThree != null" >
+        extend_three,
+      </if>
+      <if test="openid != null" >
+        openid,
+      </if>
+      <if test="fopenid != null" >
+        fopenid,
+      </if>
+      <if test="headimgurl != null" >
+        headimgurl,
+      </if>
+      <if test="imgUrl != null" >
+        img_url,
+      </if>
+      <if test="ewmUrl != null" >
+        ewm_url,
+      </if>
+      <if test="erweimaid != null" >
+        erweimaid,
+      </if>
+      <if test="attentiondate != null" >
+        AttentionDate,
+      </if>
+      <if test="attentiontimes != null" >
+        AttentionTimes,
+      </if>
+      <if test="vipLevel != null" >
+        vip_level,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="mId != null" >
+        #{mId,jdbcType=INTEGER},
+      </if>
+      <if test="mPass != null" >
+        #{mPass,jdbcType=VARCHAR},
+      </if>
+      <if test="usernick != null" >
+        #{usernick,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null" >
+        #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="gsd != null" >
+        #{gsd,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="genTime != null" >
+        #{genTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="extendOne != null" >
+        #{extendOne,jdbcType=VARCHAR},
+      </if>
+      <if test="extendTwo != null" >
+        #{extendTwo,jdbcType=VARCHAR},
+      </if>
+      <if test="extendThree != null" >
+        #{extendThree,jdbcType=VARCHAR},
+      </if>
+      <if test="openid != null" >
+        #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="fopenid != null" >
+        #{fopenid,jdbcType=VARCHAR},
+      </if>
+      <if test="headimgurl != null" >
+        #{headimgurl,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl != null" >
+        #{imgUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="ewmUrl != null" >
+        #{ewmUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="erweimaid != null" >
+        #{erweimaid,jdbcType=INTEGER},
+      </if>
+      <if test="attentiondate != null" >
+        #{attentiondate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="attentiontimes != null" >
+        #{attentiontimes,jdbcType=INTEGER},
+      </if>
+      <if test="vipLevel != null" >
+        #{vipLevel,jdbcType=TINYINT},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.WXMember" >
+    update wx_member
+    <set >
+      <if test="mPass != null" >
+        m_pass = #{mPass,jdbcType=VARCHAR},
+      </if>
+      <if test="usernick != null" >
+        usernick = #{usernick,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null" >
+        tel = #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="gsd != null" >
+        gsd = #{gsd,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="genTime != null" >
+        gen_time = #{genTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="extendOne != null" >
+        extend_one = #{extendOne,jdbcType=VARCHAR},
+      </if>
+      <if test="extendTwo != null" >
+        extend_two = #{extendTwo,jdbcType=VARCHAR},
+      </if>
+      <if test="extendThree != null" >
+        extend_three = #{extendThree,jdbcType=VARCHAR},
+      </if>
+      <if test="openid != null" >
+        openid = #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="fopenid != null" >
+        fopenid = #{fopenid,jdbcType=VARCHAR},
+      </if>
+      <if test="headimgurl != null" >
+        headimgurl = #{headimgurl,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl != null" >
+        img_url = #{imgUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="ewmUrl != null" >
+        ewm_url = #{ewmUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="erweimaid != null" >
+        erweimaid = #{erweimaid,jdbcType=INTEGER},
+      </if>
+      <if test="attentiondate != null" >
+        AttentionDate = #{attentiondate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="attentiontimes != null" >
+        AttentionTimes = #{attentiontimes,jdbcType=INTEGER},
+      </if>
+      <if test="vipLevel != null" >
+        vip_level = #{vipLevel,jdbcType=TINYINT},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=TINYINT},
+      </if>
+    </set>
+    where m_id = #{mId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.WXMember" >
+    update wx_member
+    set m_pass = #{mPass,jdbcType=VARCHAR},
+      usernick = #{usernick,jdbcType=VARCHAR},
+      tel = #{tel,jdbcType=VARCHAR},
+      gsd = #{gsd,jdbcType=VARCHAR},
+      real_name = #{realName,jdbcType=VARCHAR},
+      gen_time = #{genTime,jdbcType=TIMESTAMP},
+      extend_one = #{extendOne,jdbcType=VARCHAR},
+      extend_two = #{extendTwo,jdbcType=VARCHAR},
+      extend_three = #{extendThree,jdbcType=VARCHAR},
+      openid = #{openid,jdbcType=VARCHAR},
+      fopenid = #{fopenid,jdbcType=VARCHAR},
+      headimgurl = #{headimgurl,jdbcType=VARCHAR},
+      img_url = #{imgUrl,jdbcType=VARCHAR},
+      ewm_url = #{ewmUrl,jdbcType=VARCHAR},
+      erweimaid = #{erweimaid,jdbcType=INTEGER},
+      AttentionDate = #{attentiondate,jdbcType=TIMESTAMP},
+      AttentionTimes = #{attentiontimes,jdbcType=INTEGER},
+      vip_level = #{vipLevel,jdbcType=TINYINT},
+      state = #{state,jdbcType=TINYINT}
+    where m_id = #{mId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.ArticleDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.Article" >
+    <id column="aid" property="aid" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="author" property="author" jdbcType="VARCHAR" />
+    <result column="programa" property="programa" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="charge" property="charge" jdbcType="DECIMAL" />
+    <result column="summary" property="summary" jdbcType="VARCHAR" />
+    <result column="video" property="video" jdbcType="VARCHAR" />
+    <result column="audio" property="audio" jdbcType="VARCHAR" />
+    <result column="image" property="image" jdbcType="VARCHAR" />
+    <result column="pvalue" property="pvalue" jdbcType="VARCHAR" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+    <result column="content" property="content" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    aid, title, author, programa, area, charge, summary, video, audio, image, pvalue, gdate, content
+  </sql>
+  
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_prj_article order by aid desc
+  </select>
+  <!-- 通过pvalue查询 -->
+  <select id="selectByPvalue" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select  <include refid="Base_Column_List" />
+    from t_prj_article where pvalue = #{pvalue} order by aid asc
+  </select>
+  <!-- 分页 查询 文章列表 -->
+  <select id="selectArticles" resultMap="BaseResultMap"  parameterType="Map">
+  	select <include refid="Base_Column_List" /> from t_prj_article
+  	<where>
+  		<if test="title != null and title !='' and title !='%%'" > and title like #{title,jdbcType=VARCHAR} </if>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  		<if test="pvalue != null and pvalue !=''" > and pvalue = #{pvalue,jdbcType=VARCHAR} </if>
+  		<!-- <if test="programa != null and programa != '' "> and programa like #{programa}</if> -->
+  	</where>
+  	order by charge desc,gdate desc limit #{page},#{rows} 
+  </select>
+  <!-- 查询刚插入的文章 -->
+  <select id="selectArticle" resultMap="BaseResultMap" parameterType="com.app.entity.Article">
+  	select 
+    	<include refid="Base_Column_List" />
+    from t_prj_article
+	    <where >
+			<if test="title != null" >
+			  and title = #{title,jdbcType=VARCHAR}
+			</if>
+			<if test="author != null" >
+			  and author = #{author,jdbcType=VARCHAR}
+			</if>
+			<if test="programa != null" >
+			  and programa = #{programa,jdbcType=VARCHAR}
+			</if>
+			<if test="area != null" >
+			  and area = #{area,jdbcType=VARCHAR}
+			</if>
+			<if test="charge != null" >
+			  and charge = #{charge,jdbcType=DECIMAL}
+			</if>
+			<if test="summary != null" >
+			  and summary = #{summary,jdbcType=VARCHAR}
+			</if>
+	    </where>
+  </select>
+  
+  <!-- 链接查询内容 -->
+  <select id="selectList" resultMap="BaseResultMap">
+  	SELECT <include refid="Base_Column_List" /> FROM t_prj_article order by aid desc
+  </select>
+  <!-- 连接查询详细内容 -->
+  <select id="selectDetail" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT <include refid="Base_Column_List" /> FROM t_prj_article where aid = #{aid,jdbcType=INTEGER}
+  </select>
+  
+  <!-- app获取文章的title 和  aid -->
+  <select id="appSelectTitle" resultType="java.util.Map" parameterType="java.lang.Integer">
+    select aid,title,gdate from t_prj_article where pvalue = #{type} order by charge desc,gdate desc
+  </select>
+  
+  <!-- app根据aid获取文章 -->
+  <select id="appSelectByAid" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_prj_article where aid = #{aid,jdbcType=INTEGER}
+  </select>
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_prj_article
+    where aid = #{aid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_prj_article
+    where aid = #{aid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.Article" >
+    insert into t_prj_article (aid, title, author, 
+      programa, area, charge, 
+      summary, video, audio, image, pvalue, gdate, content
+      )
+    values (#{aid,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, 
+      #{programa,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, #{charge,jdbcType=DECIMAL}, 
+      #{summary,jdbcType=VARCHAR}, #{video,jdbcType=VARCHAR}, #{audio,jdbcType=VARCHAR},
+      #{image,jdbcType=VARCHAR}, #{pvalue,jdbcType=VARCHAR}, #{gdate,jdbcType=TIMESTAMP}, 
+      #{content,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.Article" >
+    insert into t_prj_article
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="aid != null" >
+        aid,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="author != null" >
+        author,
+      </if>
+      <if test="programa != null" >
+        programa,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="charge != null" >
+        charge,
+      </if>
+      <if test="summary != null" >
+        summary,
+      </if>
+      <if test="video != null" >
+        video,
+      </if>
+      <if test="audio != null" >
+        audio,
+      </if>
+      <if test="image != null" >
+        image,
+      </if>
+      <if test="pvalue != null" >
+        pvalue,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="aid != null" >
+        #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null" >
+        #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="programa != null" >
+        #{programa,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="charge != null" >
+        #{charge,jdbcType=DECIMAL},
+      </if>
+      <if test="summary != null" >
+        #{summary,jdbcType=VARCHAR},
+      </if>
+      <if test="video != null" >
+        #{video,jdbcType=VARCHAR},
+      </if>
+      <if test="audio != null" >
+        #{audio,jdbcType=VARCHAR},
+      </if>
+      <if test="image != null" >
+        #{image,jdbcType=VARCHAR},
+      </if>
+      <if test="pvalue != null" >
+        #{pvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.Article" >
+    update t_prj_article
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null" >
+        author = #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="programa != null" >
+        programa = #{programa,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="charge != null" >
+        charge = #{charge,jdbcType=DECIMAL},
+      </if>
+      <if test="summary != null" >
+        summary = #{summary,jdbcType=VARCHAR},
+      </if>
+      <if test="video != null" >
+        video = #{video,jdbcType=VARCHAR},
+      </if>
+      <if test="audio != null" >
+        audio = #{audio,jdbcType=VARCHAR},
+      </if>
+      <if test="image != null" >
+        image = #{image,jdbcType=VARCHAR},
+      </if>
+      <if test="pvalue != null" >
+        pvalue = #{pvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=CHAR},
+      </if>
+    </set>
+    where aid = #{aid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.Article" >
+    update t_prj_article
+    set title = #{title,jdbcType=VARCHAR},
+      author = #{author,jdbcType=VARCHAR},
+      programa = #{programa,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      charge = #{charge,jdbcType=DECIMAL},
+      summary = #{summary,jdbcType=VARCHAR},
+      video = #{video,jdbcType=VARCHAR},
+      audio = #{audio,jdbcType=VARCHAR},
+      image = #{image,jdbcType=VARCHAR},
+      pvalue = #{pvalue,jdbcType=VARCHAR},
+      gdate = #{gdate,jdbcType=TIMESTAMP},
+      content = #{content,jdbcType=CHAR}
+    where aid = #{aid,jdbcType=INTEGER}
+  </update>
+</mapper>

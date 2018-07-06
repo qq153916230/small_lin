@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.POSAssignDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.POSAssign" >
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="possn" property="possn" jdbcType="VARCHAR" />
+    <result column="merchantcode" property="merchantcode" jdbcType="VARCHAR" />
+    <result column="merchantname" property="merchantname" jdbcType="VARCHAR" />
+    <result column="posid" property="posid" jdbcType="INTEGER" />
+    <result column="postype" property="postype" jdbcType="VARCHAR" />
+    <result column="posmode" property="posmode" jdbcType="SMALLINT" />
+    <result column="isreward" property="isreward" jdbcType="SMALLINT" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="dbdate" property="dbdate" jdbcType="TIMESTAMP" />
+    <result column="dbvip" property="dbvip" jdbcType="VARCHAR" />
+    <result column="dbremark" property="dbremark" jdbcType="VARCHAR" />
+    <result column="vip_mobile" property="vipMobile" jdbcType="VARCHAR" />
+    <result column="vip_nick" property="vipNick" jdbcType="VARCHAR" />
+    <result column="bluetype" property="bluetype" jdbcType="SMALLINT" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    mid, mobile, possn, merchantcode, merchantname, posid, postype, posmode, isreward, gdate, remark, 
+    dbdate, dbvip, dbremark, vip_mobile, vip_nick, bluetype
+  </sql>
+  
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(*) from t_rc_pos_assign 
+  	<where>
+  		<if test="from != null and to != null" >and dbdate between #{from} and #{to} </if>
+  		<if test="isreward != ''" > and isreward = #{isreward} </if>
+  		<if test="bluetype != ''" > and bluetype = #{bluetype} </if>
+  		<if test="mobile != ''" > and mobile = #{mobile} </if>
+  		<if test="possn != ''" > and possn = #{possn} </if>
+  		<if test="merchantname != ''" > and merchantname = #{merchantname} </if>
+  		<if test="merchantcode != ''" > and merchantcode = #{merchantcode} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from t_rc_pos_assign
+  	<where>
+  		<if test="from != null and to != null" >and dbdate between #{from} and #{to} </if>
+  		<if test="isreward != ''" > and isreward = #{isreward} </if>
+  		<if test="bluetype != ''" > and bluetype = #{bluetype} </if>
+  		<if test="mobile != ''" > and mobile = #{mobile} </if>
+  		<if test="possn != ''" > and possn = #{possn} </if>
+  		<if test="merchantname != ''" > and merchantname = #{merchantname} </if>
+  		<if test="merchantcode != ''" > and merchantcode = #{merchantcode} </if>
+  	</where>
+  	order by gdate desc limit #{page},#{rows}
+  </select>
+  <!-- 根据mid批量更新status -->
+	<update id="updateStatus" parameterType="Map">    
+		update t_rc_pos_assign set bluetype = #{status} 
+		where possn in     
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")" >    
+			#{item}    
+		</foreach>  
+	</update>
+  
+  
+  
+  <insert id="insert" parameterType="com.app.entity.POSAssign" >
+    insert into t_rc_pos_assign (mid, mobile, possn, 
+      merchantcode, merchantname, posid, 
+      postype, posmode, isreward, 
+      gdate, remark, dbdate, 
+      dbvip, dbremark, vip_mobile, 
+      vip_nick, bluetype)
+    values (#{mid,jdbcType=INTEGER}, #{mobile,jdbcType=VARCHAR}, #{possn,jdbcType=VARCHAR}, 
+      #{merchantcode,jdbcType=VARCHAR}, #{merchantname,jdbcType=VARCHAR}, #{posid,jdbcType=INTEGER}, 
+      #{postype,jdbcType=VARCHAR}, #{posmode,jdbcType=SMALLINT}, #{isreward,jdbcType=SMALLINT}, 
+      #{gdate,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, #{dbdate,jdbcType=TIMESTAMP}, 
+      #{dbvip,jdbcType=VARCHAR}, #{dbremark,jdbcType=VARCHAR}, #{vipMobile,jdbcType=VARCHAR}, 
+      #{vipNick,jdbcType=VARCHAR}, #{bluetype,jdbcType=SMALLINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.POSAssign" >
+    insert into t_rc_pos_assign
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="possn != null" >
+        possn,
+      </if>
+      <if test="merchantcode != null" >
+        merchantcode,
+      </if>
+      <if test="merchantname != null" >
+        merchantname,
+      </if>
+      <if test="posid != null" >
+        posid,
+      </if>
+      <if test="postype != null" >
+        postype,
+      </if>
+      <if test="posmode != null" >
+        posmode,
+      </if>
+      <if test="isreward != null" >
+        isreward,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="dbdate != null" >
+        dbdate,
+      </if>
+      <if test="dbvip != null" >
+        dbvip,
+      </if>
+      <if test="dbremark != null" >
+        dbremark,
+      </if>
+      <if test="vipMobile != null" >
+        vip_mobile,
+      </if>
+      <if test="vipNick != null" >
+        vip_nick,
+      </if>
+      <if test="bluetype != null" >
+        bluetype,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="possn != null" >
+        #{possn,jdbcType=VARCHAR},
+      </if>
+      <if test="merchantcode != null" >
+        #{merchantcode,jdbcType=VARCHAR},
+      </if>
+      <if test="merchantname != null" >
+        #{merchantname,jdbcType=VARCHAR},
+      </if>
+      <if test="posid != null" >
+        #{posid,jdbcType=INTEGER},
+      </if>
+      <if test="postype != null" >
+        #{postype,jdbcType=VARCHAR},
+      </if>
+      <if test="posmode != null" >
+        #{posmode,jdbcType=SMALLINT},
+      </if>
+      <if test="isreward != null" >
+        #{isreward,jdbcType=SMALLINT},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="dbdate != null" >
+        #{dbdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dbvip != null" >
+        #{dbvip,jdbcType=VARCHAR},
+      </if>
+      <if test="dbremark != null" >
+        #{dbremark,jdbcType=VARCHAR},
+      </if>
+      <if test="vipMobile != null" >
+        #{vipMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="vipNick != null" >
+        #{vipNick,jdbcType=VARCHAR},
+      </if>
+      <if test="bluetype != null" >
+        #{bluetype,jdbcType=SMALLINT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

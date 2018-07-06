@@ -1,0 +1,323 @@
+body 
+{
+	margin:0;
+	padding:0;  
+}
+
+body
+{
+	font-family: "微软雅黑, 宋体";
+	font-weight: normal;
+	font-size: 14px;
+	color: #000;
+	line-height: 1.4;
+	/*
+	background:url(images/login_bgbody.jpg) 0 0 repeat;
+	background-size:contain;
+	*/
+} 
+a {
+text-decoration:none;
+color:#000;
+}
+#body_main{
+    background: url("../images/bgschool.jpg") no-repeat;
+
+}
+
+.navbar {
+    left: 0;
+    top: 0;
+}
+.navbar, .subnavbar, .toolbar {
+    /* background: #f7f7f8; */
+	background: #0066cc;
+	color:#fff;
+}
+.navbar, .toolbar {
+    height: 44px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 17px;
+    position: relative;
+    margin: 0;
+    z-index: 500;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+	padding-top:10px;
+}
+.navbar-inner {
+    position: absolute;
+    left: 0;
+    top: 0;
+	text-align:center;
+    width: 100%;
+    height: 100%;
+    padding-top: 10px;
+    box-sizing: border-box;  
+    align-items: center;
+}
+.page-content {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    height: 100%;
+    z-index: 1;
+    position: relative;
+
+}
+.top{
+	height: 50px;
+	line-height:1.4;
+	clear:both;
+    font-size:14px;
+    padding-left: 10px;
+    text-align: center;
+}
+.content{
+	line-height:1.4;
+	font-size:14px;
+}
+#school_li{
+    background: transparent;
+    text-align: center;
+    width: 60%;
+    position:absolute;
+    left: 50%;
+    transform: translate(-50%,-70%);
+}
+#school_li li{
+    width: 100%;
+    border:2px solid #fff;
+    border-radius: 30px;
+    margin:20px 0;
+}
+#school_li .item-content{
+    border:0;
+    min-height: 30px;
+}
+#school_li .item-inner{
+   min-height: 30px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+#school_li .label{
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    color: white;
+}
+.list-block {
+    margin: 0;
+    font-size: 14px;
+}
+.list-block ul {
+    background: #fff;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+.list-block li {
+    box-sizing: border-box;
+    position: relative;
+}
+.list-block .item-content {
+    box-sizing: border-box;
+    border:1px solid #e0e0e0;
+    border-top-width:0px;
+    border-right-width:0px;
+    border-bottom-width:1px;
+    border-left-width:0px;
+
+    padding-left: 15px;
+    min-height: 44px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+.list-block .first-child {  
+    border-top-width:1px;    
+}
+.list-block .item-media {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-shrink: 0;
+    -ms-flex: 0 0 auto;
+    flex-shrink: 0;
+    -webkit-box-lines: single;
+    -moz-box-lines: single;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: none;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    padding-top: 7px;
+    padding-bottom: 8px;
+}
+.list-block .item-media+.item-inner {
+    margin-left: 15px;
+}
+.layout-white .item-inner, .layout-white .list-block ul ul li:last-child .item-inner {
+    border-color: #ddd;
+}
+.list-block .item-inner {
+    padding-right: 15px;
+    position: relative;
+    width: 100%;
+    padding-top: 8px;
+    padding-bottom: 7px;
+    min-height: 44px;
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    overflow: hidden;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -ms-flex-item-align: stretch;
+    -webkit-align-self: stretch;
+    align-self: stretch;
+}
+.list-block .item-title {
+    -webkit-flex-shrink: 1;
+    -ms-flex: 0 1 auto;
+    flex-shrink: 1;
+    min-width: 0;
+    white-space: nowrap;
+    position: relative;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.list-block .item-after {
+    white-space: nowrap;
+    color: #8e8e93;
+    -webkit-flex-shrink: 0;
+    -ms-flex: 0 0 auto;
+    flex-shrink: 0;
+    margin-left: 5px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    max-height: 28px;
+}
+.item-input input[type="text"] {
+    text-align: right;
+     margin-top: 3px; 
+    font-size: 14px;
+}
+.list-block input[type=time], .list-block input[type=number], .list-block input[type=text], .list-block input[type=password], .list-block input[type=search], .list-block input[type=email], .list-block input[type=tel], .list-block input[type=url], .list-block input[type=date], .list-block input[type=datetime-local], .list-block select, .list-block textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    border: none;
+    background: 0 0; 
+    border-radius: 0; 
+    box-shadow: none; 
+    display: block; 
+    padding: 0; 
+    margin: 0; 
+    width: 100%;
+    height: 43px;
+    color: #000; 
+}
+
+a, input, select, textarea {
+    outline: 0;
+}
+
+.content-block{
+    clear:both;
+}
+
+.content-block .item-inner {
+    padding: 15px;
+    position: relative;
+    width: 100%; 
+    padding-bottom: 7px;
+    min-height: 44px;
+    box-sizing: border-box; 
+}
+.am-btn-danger {
+    color: #fff;
+    background-color: #fff;
+    border-color: #fff;
+    border:1px solid #e0e0e0;
+}
+button {
+    border: 0px solid transparent;
+}
+
+/* ============  am-form  ========  */
+/* 这个可以隐藏 选择文件 按钮，点击图片就可以拍照 */
+
+.am-form-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.am-form-file input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 50rem;
+}
+.am-form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* ============  am-form  ========  */
+
+.btn
+{ 
+	margin-top: 30px;
+	text-decoration: none;
+	font-size: 16px;
+	font-family: "微软雅黑";
+	font-weight: normal;
+	width: 80%;
+	height: 40px;
+	border-radius:3px;
+	color: #ffffff;
+	border:1px solid #ff9900;
+	background-color:#ff9900;
+} 
+
+#auth_message
+{
+    margin-top: 20px;
+    display: block;
+}
+ 
+

@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.TradedataDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.Tradedata" >
+    <id column="sid" property="sid" jdbcType="INTEGER" />
+    <result column="merchantcode" property="merchantcode" jdbcType="BIGINT" />
+    <result column="merchantname" property="merchantname" jdbcType="VARCHAR" />
+    <result column="skcard" property="skcard" jdbcType="VARCHAR" />
+    <result column="skbank" property="skbank" jdbcType="VARCHAR" />
+    <result column="paymoney" property="paymoney" jdbcType="DECIMAL" />
+    <result column="paydate" property="paydate" jdbcType="DATE" />
+    <result column="paytimes" property="paytimes" jdbcType="TIME" />
+    <result column="result" property="result" jdbcType="VARCHAR" />
+    <result column="shrate" property="shrate" jdbcType="DECIMAL" />
+    <result column="txrate" property="txrate" jdbcType="DECIMAL" />
+    <result column="handcharge" property="handcharge" jdbcType="DECIMAL" />
+    <result column="jsprice" property="jsprice" jdbcType="DECIMAL" />
+    <result column="agent" property="agent" jdbcType="VARCHAR" />
+    <result column="posno" property="posno" jdbcType="VARCHAR" />
+    <result column="possn" property="possn" jdbcType="VARCHAR" />
+    <result column="cardno" property="cardno" jdbcType="VARCHAR" />
+    <result column="isreward" property="isreward" jdbcType="BIT" />
+    <result column="ischeck" property="ischeck" jdbcType="BIT" />
+    <result column="modo" property="modo" jdbcType="VARCHAR" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    sid, merchantcode, merchantname, skcard, skbank, paymoney, paydate, paytimes, result, 
+    shrate, txrate, handcharge, jsprice, agent, posno, possn, cardno, isreward, ischeck, 
+    modo, gdate
+  </sql>
+  
+  <!-- 从t_zjgj_member 表获取 商户号/手机号 -->
+  <select id="selectMC" parameterType="java.lang.String" resultType="java.lang.String">
+  	SELECT UserName FROM t_zjgj_member WHERE Nick = #{mName,jdbcType=VARCHAR}
+  </select>
+  <!-- 批量插入 -->
+  <insert id="insertList" parameterType="java.util.List" >
+    insert into t_zjgj_tradedata (merchantcode, merchantname, 
+      skcard, skbank, paymoney, 
+      paydate, paytimes, result, 
+      shrate, txrate, handcharge, 
+      jsprice, agent, posno, 
+      possn, modo)
+    values 
+    <foreach collection="list" item="item" index="index" separator=",">
+    (#{item.merchantcode,jdbcType=BIGINT}, #{item.merchantname,jdbcType=VARCHAR}, 
+      #{item.skcard,jdbcType=VARCHAR}, #{item.skbank,jdbcType=VARCHAR}, #{item.paymoney,jdbcType=DECIMAL}, 
+      #{item.paytimes,jdbcType=DATE}, #{item.paytimes,jdbcType=TIME}, #{item.result,jdbcType=VARCHAR}, 
+      #{item.shrate,jdbcType=DECIMAL}, #{item.txrate,jdbcType=DECIMAL}, #{item.handcharge,jdbcType=DECIMAL}, 
+      #{item.jsprice,jdbcType=DECIMAL}, #{item.agent,jdbcType=VARCHAR}, #{item.posno,jdbcType=VARCHAR}, 
+      #{item.possn,jdbcType=VARCHAR}, #{item.modo,jdbcType=VARCHAR})
+     </foreach>
+  </insert>
+  <!-- 查询插入的数据 -->
+  <select id="selectInsert" resultMap="BaseResultMap">
+	  select sid,merchantcode, merchantname, 
+	      skcard, skbank, paymoney, 
+	       paydate, result, 
+	      shrate, txrate, handcharge, 
+	      jsprice, agent, posno, 
+	      ischeck, possn, modo
+	   from t_zjgj_tradedata
+  </select>
+  
+  <!-- 根据pid批量更新status -->
+  	<update id="updateStatusBySids" parameterType="Map">    
+        update t_zjgj_tradedata set  
+            ischeck = #{status,jdbcType=BIT} 
+        where sid in     
+        <foreach collection="sids" index="index" item="item" open="(" separator="," close=")" >    
+            #{item}    
+        </foreach>  
+	</update>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_tradedata
+    where sid = #{sid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_tradedata
+    where sid = #{sid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.Tradedata" >
+    insert into t_zjgj_tradedata (sid, merchantcode, merchantname, 
+      skcard, skbank, paymoney, 
+      paydate, paytimes, result, 
+      shrate, txrate, handcharge, 
+      jsprice, agent, posno, 
+      possn, cardno, isreward, 
+      ischeck, modo, gdate)
+    values (#{sid,jdbcType=INTEGER}, #{merchantcode,jdbcType=BIGINT}, #{merchantname,jdbcType=VARCHAR}, 
+      #{skcard,jdbcType=VARCHAR}, #{skbank,jdbcType=VARCHAR}, #{paymoney,jdbcType=DECIMAL}, 
+      #{paydate,jdbcType=DATE}, #{paytimes,jdbcType=TIME}, #{result,jdbcType=VARCHAR}, 
+      #{shrate,jdbcType=DECIMAL}, #{txrate,jdbcType=DECIMAL}, #{handcharge,jdbcType=DECIMAL}, 
+      #{jsprice,jdbcType=DECIMAL}, #{agent,jdbcType=VARCHAR}, #{posno,jdbcType=VARCHAR}, 
+      #{possn,jdbcType=VARCHAR}, #{cardno,jdbcType=VARCHAR}, #{isreward,jdbcType=BIT}, 
+      #{ischeck,jdbcType=BIT}, #{modo,jdbcType=VARCHAR}, #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.Tradedata" >
+    insert into t_zjgj_tradedata
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        sid,
+      </if>
+      <if test="merchantcode != null" >
+        merchantcode,
+      </if>
+      <if test="merchantname != null" >
+        merchantname,
+      </if>
+      <if test="skcard != null" >
+        skcard,
+      </if>
+      <if test="skbank != null" >
+        skbank,
+      </if>
+      <if test="paymoney != null" >
+        paymoney,
+      </if>
+      <if test="paydate != null" >
+        paydate,
+      </if>
+      <if test="paytimes != null" >
+        paytimes,
+      </if>
+      <if test="result != null" >
+        result,
+      </if>
+      <if test="shrate != null" >
+        shrate,
+      </if>
+      <if test="txrate != null" >
+        txrate,
+      </if>
+      <if test="handcharge != null" >
+        handcharge,
+      </if>
+      <if test="jsprice != null" >
+        jsprice,
+      </if>
+      <if test="agent != null" >
+        agent,
+      </if>
+      <if test="posno != null" >
+        posno,
+      </if>
+      <if test="possn != null" >
+        possn,
+      </if>
+      <if test="cardno != null" >
+        cardno,
+      </if>
+      <if test="isreward != null" >
+        isreward,
+      </if>
+      <if test="ischeck != null" >
+        ischeck,
+      </if>
+      <if test="modo != null" >
+        modo,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="merchantcode != null" >
+        #{merchantcode,jdbcType=BIGINT},
+      </if>
+      <if test="merchantname != null" >
+        #{merchantname,jdbcType=VARCHAR},
+      </if>
+      <if test="skcard != null" >
+        #{skcard,jdbcType=VARCHAR},
+      </if>
+      <if test="skbank != null" >
+        #{skbank,jdbcType=VARCHAR},
+      </if>
+      <if test="paymoney != null" >
+        #{paymoney,jdbcType=DECIMAL},
+      </if>
+      <if test="paydate != null" >
+        #{paydate,jdbcType=DATE},
+      </if>
+      <if test="paytimes != null" >
+        #{paytimes,jdbcType=TIME},
+      </if>
+      <if test="result != null" >
+        #{result,jdbcType=VARCHAR},
+      </if>
+      <if test="shrate != null" >
+        #{shrate,jdbcType=DECIMAL},
+      </if>
+      <if test="txrate != null" >
+        #{txrate,jdbcType=DECIMAL},
+      </if>
+      <if test="handcharge != null" >
+        #{handcharge,jdbcType=DECIMAL},
+      </if>
+      <if test="jsprice != null" >
+        #{jsprice,jdbcType=DECIMAL},
+      </if>
+      <if test="agent != null" >
+        #{agent,jdbcType=VARCHAR},
+      </if>
+      <if test="posno != null" >
+        #{posno,jdbcType=VARCHAR},
+      </if>
+      <if test="possn != null" >
+        #{possn,jdbcType=VARCHAR},
+      </if>
+      <if test="cardno != null" >
+        #{cardno,jdbcType=VARCHAR},
+      </if>
+      <if test="isreward != null" >
+        #{isreward,jdbcType=BIT},
+      </if>
+      <if test="ischeck != null" >
+        #{ischeck,jdbcType=BIT},
+      </if>
+      <if test="modo != null" >
+        #{modo,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.Tradedata" >
+    update t_zjgj_tradedata
+    <set >
+      <if test="merchantcode != null" >
+        merchantcode = #{merchantcode,jdbcType=BIGINT},
+      </if>
+      <if test="merchantname != null" >
+        merchantname = #{merchantname,jdbcType=VARCHAR},
+      </if>
+      <if test="skcard != null" >
+        skcard = #{skcard,jdbcType=VARCHAR},
+      </if>
+      <if test="skbank != null" >
+        skbank = #{skbank,jdbcType=VARCHAR},
+      </if>
+      <if test="paymoney != null" >
+        paymoney = #{paymoney,jdbcType=DECIMAL},
+      </if>
+      <if test="paydate != null" >
+        paydate = #{paydate,jdbcType=DATE},
+      </if>
+      <if test="paytimes != null" >
+        paytimes = #{paytimes,jdbcType=TIME},
+      </if>
+      <if test="result != null" >
+        result = #{result,jdbcType=VARCHAR},
+      </if>
+      <if test="shrate != null" >
+        shrate = #{shrate,jdbcType=DECIMAL},
+      </if>
+      <if test="txrate != null" >
+        txrate = #{txrate,jdbcType=DECIMAL},
+      </if>
+      <if test="handcharge != null" >
+        handcharge = #{handcharge,jdbcType=DECIMAL},
+      </if>
+      <if test="jsprice != null" >
+        jsprice = #{jsprice,jdbcType=DECIMAL},
+      </if>
+      <if test="agent != null" >
+        agent = #{agent,jdbcType=VARCHAR},
+      </if>
+      <if test="posno != null" >
+        posno = #{posno,jdbcType=VARCHAR},
+      </if>
+      <if test="possn != null" >
+        possn = #{possn,jdbcType=VARCHAR},
+      </if>
+      <if test="cardno != null" >
+        cardno = #{cardno,jdbcType=VARCHAR},
+      </if>
+      <if test="isreward != null" >
+        isreward = #{isreward,jdbcType=BIT},
+      </if>
+      <if test="ischeck != null" >
+        ischeck = #{ischeck,jdbcType=BIT},
+      </if>
+      <if test="modo != null" >
+        modo = #{modo,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.Tradedata" >
+    update t_zjgj_tradedata
+    set merchantcode = #{merchantcode,jdbcType=BIGINT},
+      merchantname = #{merchantname,jdbcType=VARCHAR},
+      skcard = #{skcard,jdbcType=VARCHAR},
+      skbank = #{skbank,jdbcType=VARCHAR},
+      paymoney = #{paymoney,jdbcType=DECIMAL},
+      paydate = #{paydate,jdbcType=DATE},
+      paytimes = #{paytimes,jdbcType=TIME},
+      result = #{result,jdbcType=VARCHAR},
+      shrate = #{shrate,jdbcType=DECIMAL},
+      txrate = #{txrate,jdbcType=DECIMAL},
+      handcharge = #{handcharge,jdbcType=DECIMAL},
+      jsprice = #{jsprice,jdbcType=DECIMAL},
+      agent = #{agent,jdbcType=VARCHAR},
+      posno = #{posno,jdbcType=VARCHAR},
+      possn = #{possn,jdbcType=VARCHAR},
+      cardno = #{cardno,jdbcType=VARCHAR},
+      isreward = #{isreward,jdbcType=BIT},
+      ischeck = #{ischeck,jdbcType=BIT},
+      modo = #{modo,jdbcType=VARCHAR},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+</mapper>

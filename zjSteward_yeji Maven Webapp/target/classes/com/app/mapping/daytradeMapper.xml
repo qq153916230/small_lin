@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.daytradeMapper" >
+  <resultMap id="BaseResultMap" type="com.app.entity.daytrade" >
+    <id column="tid" property="tid" jdbcType="BIGINT" />
+    <result column="merchantcode" property="merchantcode" jdbcType="BIGINT" />
+    <result column="merchantname" property="merchantname" jdbcType="VARCHAR" />
+    <result column="ttype" property="ttype" jdbcType="VARCHAR" />
+    <result column="posno" property="posno" jdbcType="VARCHAR" />
+    <result column="cardno" property="cardno" jdbcType="VARCHAR" />
+    <result column="paydate" property="paydate" jdbcType="DATE" />
+    <result column="paymoney" property="paymoney" jdbcType="DECIMAL" />
+    <result column="paynum" property="paynum" jdbcType="INTEGER" />
+    <result column="handcharge" property="handcharge" jdbcType="DECIMAL" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, merchantcode, merchantname, ttype, posno, cardno, paydate, paymoney, paynum, 
+    handcharge, gdate
+  </sql>
+  
+  <!-- 获取T0交易总额 -->
+  <select id="selectT0DealTotleMoney"  resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	SELECT SUM(paymoney) FROM t_zjgj_bill_daytrade WHERE ttype = 'T0' and paydate = #{date,jdbcType=DATE}
+  </select>
+  <!-- 获取T1交易总额 -->
+  <select id="selectT1DealTotleMoney" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	SELECT SUM(paymoney) FROM t_zjgj_bill_daytrade WHERE ttype = 'T1' and paydate = #{date,jdbcType=DATE}
+  </select>
+  <!-- 获取T0交易笔数 -->
+  <select id="selectT0DealTotleNum" resultType="java.lang.Integer" parameterType="java.lang.String">
+  	select count(*) from t_zjgj_bill_daytrade WHERE ttype = 'T0' and paydate = #{date,jdbcType=DATE}
+  </select>
+  <!-- 获取T1交易笔数 -->
+  <select id="selectT1DealTotleNum" resultType="java.lang.Integer" parameterType="java.lang.String">
+  	select count(*) from t_zjgj_bill_daytrade WHERE ttype = 'T1' and paydate = #{date,jdbcType=DATE}
+  </select>
+  <!-- 获取交易总金额 -->
+  <select id="selectPayTotleMoney" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	SELECT SUM(paymoney) FROM t_zjgj_bill_daytrade WHERE paydate = #{date,jdbcType=DATE}
+  </select>
+  
+  <!-- 搜索功能 查询指定用户，指定日期的信息 -->
+  <!-- 获取T0交易总额 -->
+  <select id="selectT0DealTotleMoney2"  resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	SELECT SUM(paymoney) FROM t_zjgj_bill_daytrade
+  	<where>
+  		<!-- <if test=" 1 = 1 " >	 -->ttype = 'T0'	<!-- </if> -->
+  		<if test="paydate != null" > and paydate like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and merchantcode = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  <!-- 获取T1交易总额 -->
+  <select id="selectT1DealTotleMoney2" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	SELECT SUM(paymoney) FROM t_zjgj_bill_daytrade
+  	<where>
+  		<!-- <if test=" 1 = 1 " >	 -->ttype = 'T1'	<!-- </if> -->
+  		<if test="paydate != null" > and paydate like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and merchantcode = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  <!-- 获取T0交易笔数 -->
+  <select id="selectT0DealTotleNum2" resultType="java.lang.Integer" parameterType="java.lang.String">
+  	select count(*) from t_zjgj_bill_daytrade
+  	<where>
+  		<!-- <if test=" 1 = 1 " > -->	ttype = 'T0'	<!-- </if> -->
+  		<if test="paydate != null" > and paydate like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and merchantcode = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  <!-- 获取T1交易笔数 -->
+  <select id="selectT1DealTotleNum2" resultType="java.lang.Integer" parameterType="java.lang.String">
+  	select count(*) from t_zjgj_bill_daytrade 
+  	<where>
+  		<!-- <if test=" 1 = 1 " > -->	ttype = 'T1'	<!-- </if> -->
+  		<if test="paydate != null" > and paydate like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and merchantcode = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  <!-- 获取交易总金额 -->
+  <select id="selectPayTotleMoney2" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+  	SELECT SUM(paymoney) FROM t_zjgj_bill_daytrade
+  	<where>
+  		<if test="paydate != null" > paydate like #{paydate,jdbcType=DATE} </if>
+  		<if test="merchantcode != null" > and merchantcode = #{merchantcode,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_bill_daytrade
+    where tid = #{tid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_zjgj_bill_daytrade
+    where tid = #{tid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.daytrade" >
+    insert into t_zjgj_bill_daytrade (tid, merchantcode, merchantname, 
+      ttype, posno, cardno, 
+      paydate, paymoney, paynum, 
+      handcharge, gdate)
+    values (#{tid,jdbcType=BIGINT}, #{merchantcode,jdbcType=BIGINT}, #{merchantname,jdbcType=VARCHAR}, 
+      #{ttype,jdbcType=VARCHAR}, #{posno,jdbcType=VARCHAR}, #{cardno,jdbcType=VARCHAR}, 
+      #{paydate,jdbcType=DATE}, #{paymoney,jdbcType=DECIMAL}, #{paynum,jdbcType=INTEGER}, 
+      #{handcharge,jdbcType=DECIMAL}, #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.daytrade" >
+    insert into t_zjgj_bill_daytrade
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="merchantcode != null" >
+        merchantcode,
+      </if>
+      <if test="merchantname != null" >
+        merchantname,
+      </if>
+      <if test="ttype != null" >
+        ttype,
+      </if>
+      <if test="posno != null" >
+        posno,
+      </if>
+      <if test="cardno != null" >
+        cardno,
+      </if>
+      <if test="paydate != null" >
+        paydate,
+      </if>
+      <if test="paymoney != null" >
+        paymoney,
+      </if>
+      <if test="paynum != null" >
+        paynum,
+      </if>
+      <if test="handcharge != null" >
+        handcharge,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=BIGINT},
+      </if>
+      <if test="merchantcode != null" >
+        #{merchantcode,jdbcType=BIGINT},
+      </if>
+      <if test="merchantname != null" >
+        #{merchantname,jdbcType=VARCHAR},
+      </if>
+      <if test="ttype != null" >
+        #{ttype,jdbcType=VARCHAR},
+      </if>
+      <if test="posno != null" >
+        #{posno,jdbcType=VARCHAR},
+      </if>
+      <if test="cardno != null" >
+        #{cardno,jdbcType=VARCHAR},
+      </if>
+      <if test="paydate != null" >
+        #{paydate,jdbcType=DATE},
+      </if>
+      <if test="paymoney != null" >
+        #{paymoney,jdbcType=DECIMAL},
+      </if>
+      <if test="paynum != null" >
+        #{paynum,jdbcType=INTEGER},
+      </if>
+      <if test="handcharge != null" >
+        #{handcharge,jdbcType=DECIMAL},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.daytrade" >
+    update t_zjgj_bill_daytrade
+    <set >
+      <if test="merchantcode != null" >
+        merchantcode = #{merchantcode,jdbcType=BIGINT},
+      </if>
+      <if test="merchantname != null" >
+        merchantname = #{merchantname,jdbcType=VARCHAR},
+      </if>
+      <if test="ttype != null" >
+        ttype = #{ttype,jdbcType=VARCHAR},
+      </if>
+      <if test="posno != null" >
+        posno = #{posno,jdbcType=VARCHAR},
+      </if>
+      <if test="cardno != null" >
+        cardno = #{cardno,jdbcType=VARCHAR},
+      </if>
+      <if test="paydate != null" >
+        paydate = #{paydate,jdbcType=DATE},
+      </if>
+      <if test="paymoney != null" >
+        paymoney = #{paymoney,jdbcType=DECIMAL},
+      </if>
+      <if test="paynum != null" >
+        paynum = #{paynum,jdbcType=INTEGER},
+      </if>
+      <if test="handcharge != null" >
+        handcharge = #{handcharge,jdbcType=DECIMAL},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.daytrade" >
+    update t_zjgj_bill_daytrade
+    set merchantcode = #{merchantcode,jdbcType=BIGINT},
+      merchantname = #{merchantname,jdbcType=VARCHAR},
+      ttype = #{ttype,jdbcType=VARCHAR},
+      posno = #{posno,jdbcType=VARCHAR},
+      cardno = #{cardno,jdbcType=VARCHAR},
+      paydate = #{paydate,jdbcType=DATE},
+      paymoney = #{paymoney,jdbcType=DECIMAL},
+      paynum = #{paynum,jdbcType=INTEGER},
+      handcharge = #{handcharge,jdbcType=DECIMAL},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where tid = #{tid,jdbcType=BIGINT}
+  </update>
+</mapper>

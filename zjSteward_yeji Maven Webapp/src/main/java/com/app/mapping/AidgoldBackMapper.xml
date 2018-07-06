@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.AidgoldBackDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.AidgoldBack" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="aid" property="aid" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="period" property="period" jdbcType="INTEGER" />
+    <result column="hkmoney" property="hkmoney" jdbcType="DECIMAL" />
+    <result column="modo" property="modo" jdbcType="SMALLINT" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="principal" property="principal" jdbcType="DECIMAL" />
+    <result column="poundage" property="poundage" jdbcType="DECIMAL" />
+    <result column="interest" property="interest" jdbcType="DECIMAL" />
+    <result column="overmoney" property="overmoney" jdbcType="DECIMAL" />
+    <result column="enddate" property="enddate" jdbcType="DATE" />
+    <result column="hkdate" property="hkdate" jdbcType="DATE" />
+    <result column="overdate" property="overdate" jdbcType="INTEGER" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, aid, mid, period, hkmoney, modo, status, principal, poundage, interest, overmoney, 
+    enddate, hkdate, overdate, gdate
+  </sql>
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(1) from t_zjgj_aidgold_back 
+  	<where>
+  		<if test="from != null and to != null" >and gdate between #{from} and #{to} </if>
+  		<if test="status != ''" > and status = #{status} </if>
+  		<if test="tid != '' and tid != null and tid != 'null'" > and aid = #{tid} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from t_zjgj_aidgold_back
+  	<where>
+  		<if test="from != null and to != null" >and gdate between #{from} and #{to} </if>
+  		<if test="status != ''" > and status = #{status} </if>
+  		<if test="tid != '' and tid != null and tid != 'null'" > and aid = #{tid} </if>
+  	</where>
+  	order by gdate desc limit #{page},#{rows}
+  </select>
+  
+  
+  
+  
+  
+
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_back
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_aidgold_back
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.AidgoldBack" >
+    insert into t_zjgj_aidgold_back (tid, aid, mid, 
+      period, hkmoney, modo, 
+      status, principal, poundage, 
+      interest, overmoney, enddate, 
+      hkdate, overdate, gdate
+      )
+    values (#{tid,jdbcType=INTEGER}, #{aid,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, 
+      #{period,jdbcType=INTEGER}, #{hkmoney,jdbcType=DECIMAL}, #{modo,jdbcType=SMALLINT}, 
+      #{status,jdbcType=SMALLINT}, #{principal,jdbcType=DECIMAL}, #{poundage,jdbcType=DECIMAL}, 
+      #{interest,jdbcType=DECIMAL}, #{overmoney,jdbcType=DECIMAL}, #{enddate,jdbcType=DATE}, 
+      #{hkdate,jdbcType=DATE}, #{overdate,jdbcType=INTEGER}, #{gdate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.AidgoldBack" >
+    insert into t_zjgj_aidgold_back
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="aid != null" >
+        aid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="period != null" >
+        period,
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney,
+      </if>
+      <if test="modo != null" >
+        modo,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="principal != null" >
+        principal,
+      </if>
+      <if test="poundage != null" >
+        poundage,
+      </if>
+      <if test="interest != null" >
+        interest,
+      </if>
+      <if test="overmoney != null" >
+        overmoney,
+      </if>
+      <if test="enddate != null" >
+        enddate,
+      </if>
+      <if test="hkdate != null" >
+        hkdate,
+      </if>
+      <if test="overdate != null" >
+        overdate,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="aid != null" >
+        #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="period != null" >
+        #{period,jdbcType=INTEGER},
+      </if>
+      <if test="hkmoney != null" >
+        #{hkmoney,jdbcType=DECIMAL},
+      </if>
+      <if test="modo != null" >
+        #{modo,jdbcType=SMALLINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="principal != null" >
+        #{principal,jdbcType=DECIMAL},
+      </if>
+      <if test="poundage != null" >
+        #{poundage,jdbcType=DECIMAL},
+      </if>
+      <if test="interest != null" >
+        #{interest,jdbcType=DECIMAL},
+      </if>
+      <if test="overmoney != null" >
+        #{overmoney,jdbcType=DECIMAL},
+      </if>
+      <if test="enddate != null" >
+        #{enddate,jdbcType=DATE},
+      </if>
+      <if test="hkdate != null" >
+        #{hkdate,jdbcType=DATE},
+      </if>
+      <if test="overdate != null" >
+        #{overdate,jdbcType=INTEGER},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.AidgoldBack" >
+    update t_zjgj_aidgold_back
+    <set >
+      <if test="aid != null" >
+        aid = #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="period != null" >
+        period = #{period,jdbcType=INTEGER},
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney = #{hkmoney,jdbcType=DECIMAL},
+      </if>
+      <if test="modo != null" >
+        modo = #{modo,jdbcType=SMALLINT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="principal != null" >
+        principal = #{principal,jdbcType=DECIMAL},
+      </if>
+      <if test="poundage != null" >
+        poundage = #{poundage,jdbcType=DECIMAL},
+      </if>
+      <if test="interest != null" >
+        interest = #{interest,jdbcType=DECIMAL},
+      </if>
+      <if test="overmoney != null" >
+        overmoney = #{overmoney,jdbcType=DECIMAL},
+      </if>
+      <if test="enddate != null" >
+        enddate = #{enddate,jdbcType=DATE},
+      </if>
+      <if test="hkdate != null" >
+        hkdate = #{hkdate,jdbcType=DATE},
+      </if>
+      <if test="overdate != null" >
+        overdate = #{overdate,jdbcType=INTEGER},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.AidgoldBack" >
+    update t_zjgj_aidgold_back
+    set aid = #{aid,jdbcType=INTEGER},
+      mid = #{mid,jdbcType=INTEGER},
+      period = #{period,jdbcType=INTEGER},
+      hkmoney = #{hkmoney,jdbcType=DECIMAL},
+      modo = #{modo,jdbcType=SMALLINT},
+      status = #{status,jdbcType=SMALLINT},
+      principal = #{principal,jdbcType=DECIMAL},
+      poundage = #{poundage,jdbcType=DECIMAL},
+      interest = #{interest,jdbcType=DECIMAL},
+      overmoney = #{overmoney,jdbcType=DECIMAL},
+      enddate = #{enddate,jdbcType=DATE},
+      hkdate = #{hkdate,jdbcType=DATE},
+      overdate = #{overdate,jdbcType=INTEGER},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>

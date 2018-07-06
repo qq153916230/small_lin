@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.EpayTradeJoinResDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.EpayTradeJoinRes" >
+    <id column="tid" property="tid" jdbcType="BIGINT" />
+    <result column="orderid" property="orderid" jdbcType="CHAR" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="mobile" property="mobile" jdbcType="CHAR" />
+    <result column="idno" property="idno" jdbcType="CHAR" />
+    <result column="AcctNo" property="acctno" jdbcType="VARCHAR" />
+    <result column="AcctName" property="acctname" jdbcType="VARCHAR" />
+    <result column="AcctBank" property="acctbank" jdbcType="VARCHAR" />
+    <result column="AcctBankName" property="acctbankname" jdbcType="VARCHAR" />
+    <result column="cardno" property="cardno" jdbcType="CHAR" />
+    <result column="master" property="master" jdbcType="VARCHAR" />
+    <result column="bank" property="bank" jdbcType="VARCHAR" />
+    <result column="skdate" property="skdate" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="thirdvoucher" property="thirdvoucher" jdbcType="CHAR" />
+    <result column="bussSeqNo" property="bussseqno" jdbcType="CHAR" />
+    <result column="ptimes" property="ptimes" jdbcType="SMALLINT" />
+    <result column="zdmonth" property="zdmonth" jdbcType="CHAR" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+    
+    <!-- join part -->
+    <result column="res_mid" property="r_mid" jdbcType="INTEGER" />
+    <result column="res_mobile" property="r_mobile" jdbcType="VARCHAR" />
+    <result column="res_orderid" property="r_orderid" jdbcType="VARCHAR" />
+    <result column="res_bussflowno" property="r_bussflowno" jdbcType="VARCHAR" />
+    <result column="res_money" property="r_money" jdbcType="DECIMAL" />
+    <result column="res_acctno" property="r_acctno" jdbcType="VARCHAR" />
+    <result column="res_acctname" property="r_acctname" jdbcType="VARCHAR" />
+    <result column="res_accBankName" property="r_accbankname" jdbcType="VARCHAR" />
+    <result column="res_status" property="r_status" jdbcType="INTEGER" />
+    <result column="res_status_date" property="r_statusDate" jdbcType="TIMESTAMP" />
+    <result column="res_ptimes" property="r_ptimes" jdbcType="SMALLINT" />
+    <result column="res_zdmonth" property="r_zdmonth" jdbcType="CHAR" />
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, orderid, amount, mobile, idno, AcctNo, AcctName, AcctBank, AcctBankName, cardno, 
+    master, bank, skdate, status, remark, thirdvoucher, bussSeqNo, ptimes, zdmonth, gdate,
+    <!-- join part -->
+    res_mid, res_mobile, res_orderid, res_bussflowno, res_money, res_acctno, res_acctname, res_accBankName, res_status,
+    res_status_date,res_ptimes,res_zdmonth
+  </sql>
+  
+  <!-- 查询总条数 -->
+  <select id="selectCount" resultType="java.lang.Long">
+  	select count(tid) from t_zjgj_epay_trade
+  </select>
+  <!-- 条件查询总条数 -->
+  <select id="selectCountCondition" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(tid) from t_zjgj_epay_trade 
+  	<where>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  		<if test="mobile != null and mobile !=''" > and mobile = #{mobile,jdbcType=VARCHAR} </if>
+  		<if test="searchStatus != null and searchStatus !=''" > and status = #{searchStatus,jdbcType=VARCHAR} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	SELECT orderid, amount, master, skdate, status,  
+  				res_status, res_mid, res_mobile, res_orderid, res_money, res_status_date,res_acctname
+    FROM 
+    (SELECT orderid, amount, MASTER, skdate, STATUS, mobile, gdate <!-- tid, mobile, idno, AcctNo, AcctName, AcctBank, AcctBankName, cardno, bank, remark, thirdvoucher, bussSeqNo, ptimes, zdmonth, gdate   -->
+    FROM t_zjgj_epay_trade
+    <where>
+    	<if test="1 == 1" > and STATUS &gt;= 20 </if>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  	</where>
+    ) AS a
+    LEFT JOIN
+    (SELECT MID res_mid, STATUS res_status, mobile res_mobile, orderid res_orderid, money res_money, status_date res_status_date, acctname res_acctname	<!-- 	 bussflowno res_bussflowno, acctno res_acctno, accBankName res_accBankName,ptimes res_ptimes,zdmonth res_zdmonth  -->
+    FROM t_zjgj_epay_hkresult 
+    <where>
+    	<if test="1 == 1" > and STATUS = 7 </if>
+  		<if test="from != null and from !=''" >and status_date &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and status_date &lt;= #{to,jdbcType=DATE} </if>
+  	</where>
+    ) AS b
+    ON a.orderid = b.res_orderid
+    
+  	<where>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  		<if test="mobile != null and mobile !=''" > and mobile = #{mobile,jdbcType=VARCHAR} </if>
+  		<!-- <if test="searchStatus != null and searchStatus !=''" > and status = #{searchStatus,jdbcType=VARCHAR} </if> -->
+  	</where>
+  	order by res_status_date desc limit #{page},#{rows}
+  </select>
+  <!-- 条件查询总金额 -->
+  <select id="selectCountMoney" resultType="java.util.Map" parameterType="java.util.Map">
+  	SELECT sum(amount) trade_money,sum(res_money) result_money
+    FROM 
+    (SELECT orderid, amount, mobile, gdate FROM t_zjgj_epay_trade
+    <where>
+    	<if test="1 == 1" > and STATUS &gt;= 20 </if>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  	</where>
+    ) AS a
+    LEFT JOIN
+    (SELECT orderid res_orderid, money res_money FROM t_zjgj_epay_hkresult 
+    <where>
+    	<if test="1 == 1" > and STATUS = 7 </if>
+  		<if test="from != null and from !=''" >and status_date &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and status_date &lt;= #{to,jdbcType=DATE} </if>
+  	</where>
+    ) AS b
+    ON a.orderid = b.res_orderid
+    
+  	<where>
+  		<if test="from != null and from !=''" >and gdate &gt;= #{from,jdbcType=DATE} </if>
+  		<if test="to != null and to !=''" >and gdate &lt;= #{to,jdbcType=DATE} </if>
+  		<if test="mobile != null and mobile !=''" > and mobile = #{mobile,jdbcType=VARCHAR} </if>
+  		<!-- <if test="searchStatus != null and searchStatus !=''" > and status = #{searchStatus,jdbcType=VARCHAR} </if> -->
+  	</where>
+  </select>
+  
+</mapper>

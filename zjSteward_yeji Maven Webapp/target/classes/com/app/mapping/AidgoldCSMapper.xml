@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.AidgoldCSDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.AidgoldCS" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="aid" property="aid" jdbcType="INTEGER" />
+    <result column="csmodo" property="csmodo" jdbcType="SMALLINT" />
+    <result column="csdate" property="csdate" jdbcType="TIMESTAMP" />
+    <result column="cscont" property="cscont" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, mid, aid, csmodo, csdate, cscont, remark
+  </sql>
+  
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(*) from t_zjgj_aidgold_cs 
+  	<where>
+  		<if test="from != null and to != null" >and csdate between #{from} and #{to} </if>
+  		<if test="aid != '' and aid != 'null'" > and aid = #{aid} </if>
+  		<!-- <if test="skname != ''" > and skname = #{skname} </if>
+  		<if test="jkcheck != ''" > and jkcheck = #{jkcheck} </if> -->
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from t_zjgj_aidgold_cs
+  	<where>
+  		<if test="from != null and to != null" >and csdate between #{from} and #{to} </if>
+  		<if test="aid != '' and aid != 'null'" > and aid = #{aid} </if>
+  		<!-- <if test="skname != ''" > and skname = #{skname} </if>
+  		<if test="jkcheck != ''" > and jkcheck = #{jkcheck} </if> -->
+  	</where>
+  	order by csdate desc limit #{page},#{rows}
+  </select>
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_cs
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_aidgold_cs
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.AidgoldCS" >
+    insert into t_zjgj_aidgold_cs (tid, mid, aid, 
+      csmodo, csdate, cscont, 
+      remark)
+    values (#{tid,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, #{aid,jdbcType=INTEGER}, 
+      #{csmodo,jdbcType=SMALLINT}, #{csdate,jdbcType=TIMESTAMP}, #{cscont,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.AidgoldCS" >
+    insert into t_zjgj_aidgold_cs
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="aid != null" >
+        aid,
+      </if>
+      <if test="csmodo != null" >
+        csmodo,
+      </if>
+      <if test="csdate != null" >
+        csdate,
+      </if>
+      <if test="cscont != null" >
+        cscont,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="aid != null" >
+        #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="csmodo != null" >
+        #{csmodo,jdbcType=SMALLINT},
+      </if>
+      <if test="csdate != null" >
+        #{csdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cscont != null" >
+        #{cscont,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.AidgoldCS" >
+    update t_zjgj_aidgold_cs
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="aid != null" >
+        aid = #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="csmodo != null" >
+        csmodo = #{csmodo,jdbcType=SMALLINT},
+      </if>
+      <if test="csdate != null" >
+        csdate = #{csdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cscont != null" >
+        cscont = #{cscont,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.AidgoldCS" >
+    update t_zjgj_aidgold_cs
+    set mid = #{mid,jdbcType=INTEGER},
+      aid = #{aid,jdbcType=INTEGER},
+      csmodo = #{csmodo,jdbcType=SMALLINT},
+      csdate = #{csdate,jdbcType=TIMESTAMP},
+      cscont = #{cscont,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.CardDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.Card" >
+    <id column="cid" property="cid" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="master" property="master" jdbcType="VARCHAR" />
+    <result column="cardno" property="cardno" jdbcType="VARCHAR" />
+    <result column="bank" property="bank" jdbcType="VARCHAR" />
+    <result column="zdmonth" property="zdmonth" jdbcType="VARCHAR" />
+    <result column="zdday" property="zdday" jdbcType="VARCHAR" />
+    <result column="hkday" property="hkday" jdbcType="VARCHAR" />
+    <result column="period" property="period" jdbcType="SMALLINT" />
+    <result column="hkprice" property="hkprice" jdbcType="INTEGER" />
+    <result column="yxdate" property="yxdate" jdbcType="VARCHAR" />
+    <result column="cxpass" property="cxpass" jdbcType="VARCHAR" />
+    <result column="paypass" property="paypass" jdbcType="VARCHAR" />
+    <result column="sncode" property="sncode" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="ischeck" property="ischeck" jdbcType="SMALLINT" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    cid, mid, mobile, master, cardno, bank, zdmonth, zdday, hkday, period, hkprice, yxdate, 
+    cxpass, paypass, sncode, status, ischeck, gdate
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_card
+    where cid = #{cid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_card
+    where cid = #{cid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.Card" >
+    insert into t_zjgj_card (cid, mid, mobile, 
+      master, cardno, bank, 
+      zdmonth, zdday, hkday, 
+      period, hkprice, yxdate, 
+      cxpass, paypass, sncode, 
+      status, ischeck, gdate
+      )
+    values (#{cid,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, #{mobile,jdbcType=VARCHAR}, 
+      #{master,jdbcType=VARCHAR}, #{cardno,jdbcType=VARCHAR}, #{bank,jdbcType=VARCHAR}, 
+      #{zdmonth,jdbcType=VARCHAR}, #{zdday,jdbcType=VARCHAR}, #{hkday,jdbcType=VARCHAR}, 
+      #{period,jdbcType=SMALLINT}, #{hkprice,jdbcType=INTEGER}, #{yxdate,jdbcType=VARCHAR}, 
+      #{cxpass,jdbcType=VARCHAR}, #{paypass,jdbcType=VARCHAR}, #{sncode,jdbcType=VARCHAR}, 
+      #{status,jdbcType=SMALLINT}, #{ischeck,jdbcType=SMALLINT}, #{gdate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.Card" >
+    insert into t_zjgj_card
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        cid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="master != null" >
+        master,
+      </if>
+      <if test="cardno != null" >
+        cardno,
+      </if>
+      <if test="bank != null" >
+        bank,
+      </if>
+      <if test="zdmonth != null" >
+        zdmonth,
+      </if>
+      <if test="zdday != null" >
+        zdday,
+      </if>
+      <if test="hkday != null" >
+        hkday,
+      </if>
+      <if test="period != null" >
+        period,
+      </if>
+      <if test="hkprice != null" >
+        hkprice,
+      </if>
+      <if test="yxdate != null" >
+        yxdate,
+      </if>
+      <if test="cxpass != null" >
+        cxpass,
+      </if>
+      <if test="paypass != null" >
+        paypass,
+      </if>
+      <if test="sncode != null" >
+        sncode,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="ischeck != null" >
+        ischeck,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="master != null" >
+        #{master,jdbcType=VARCHAR},
+      </if>
+      <if test="cardno != null" >
+        #{cardno,jdbcType=VARCHAR},
+      </if>
+      <if test="bank != null" >
+        #{bank,jdbcType=VARCHAR},
+      </if>
+      <if test="zdmonth != null" >
+        #{zdmonth,jdbcType=VARCHAR},
+      </if>
+      <if test="zdday != null" >
+        #{zdday,jdbcType=VARCHAR},
+      </if>
+      <if test="hkday != null" >
+        #{hkday,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null" >
+        #{period,jdbcType=SMALLINT},
+      </if>
+      <if test="hkprice != null" >
+        #{hkprice,jdbcType=INTEGER},
+      </if>
+      <if test="yxdate != null" >
+        #{yxdate,jdbcType=VARCHAR},
+      </if>
+      <if test="cxpass != null" >
+        #{cxpass,jdbcType=VARCHAR},
+      </if>
+      <if test="paypass != null" >
+        #{paypass,jdbcType=VARCHAR},
+      </if>
+      <if test="sncode != null" >
+        #{sncode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="ischeck != null" >
+        #{ischeck,jdbcType=SMALLINT},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.Card" >
+    update t_zjgj_card
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="master != null" >
+        master = #{master,jdbcType=VARCHAR},
+      </if>
+      <if test="cardno != null" >
+        cardno = #{cardno,jdbcType=VARCHAR},
+      </if>
+      <if test="bank != null" >
+        bank = #{bank,jdbcType=VARCHAR},
+      </if>
+      <if test="zdmonth != null" >
+        zdmonth = #{zdmonth,jdbcType=VARCHAR},
+      </if>
+      <if test="zdday != null" >
+        zdday = #{zdday,jdbcType=VARCHAR},
+      </if>
+      <if test="hkday != null" >
+        hkday = #{hkday,jdbcType=VARCHAR},
+      </if>
+      <if test="period != null" >
+        period = #{period,jdbcType=SMALLINT},
+      </if>
+      <if test="hkprice != null" >
+        hkprice = #{hkprice,jdbcType=INTEGER},
+      </if>
+      <if test="yxdate != null" >
+        yxdate = #{yxdate,jdbcType=VARCHAR},
+      </if>
+      <if test="cxpass != null" >
+        cxpass = #{cxpass,jdbcType=VARCHAR},
+      </if>
+      <if test="paypass != null" >
+        paypass = #{paypass,jdbcType=VARCHAR},
+      </if>
+      <if test="sncode != null" >
+        sncode = #{sncode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="ischeck != null" >
+        ischeck = #{ischeck,jdbcType=SMALLINT},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.Card" >
+    update t_zjgj_card
+    set mid = #{mid,jdbcType=INTEGER},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      master = #{master,jdbcType=VARCHAR},
+      cardno = #{cardno,jdbcType=VARCHAR},
+      bank = #{bank,jdbcType=VARCHAR},
+      zdmonth = #{zdmonth,jdbcType=VARCHAR},
+      zdday = #{zdday,jdbcType=VARCHAR},
+      hkday = #{hkday,jdbcType=VARCHAR},
+      period = #{period,jdbcType=SMALLINT},
+      hkprice = #{hkprice,jdbcType=INTEGER},
+      yxdate = #{yxdate,jdbcType=VARCHAR},
+      cxpass = #{cxpass,jdbcType=VARCHAR},
+      paypass = #{paypass,jdbcType=VARCHAR},
+      sncode = #{sncode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=SMALLINT},
+      ischeck = #{ischeck,jdbcType=SMALLINT},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.AidgoldLogDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.AidgoldLog" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="VARCHAR" />
+    <result column="stype" property="stype" jdbcType="CHAR" />
+    <result column="cont" property="cont" jdbcType="VARCHAR" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, mid, stype, cont, gdate
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold_log
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_aidgold_log
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.AidgoldLog" >
+    insert into t_zjgj_aidgold_log (tid, mid, stype, 
+      cont, gdate)
+    values (#{tid,jdbcType=INTEGER}, #{mid,jdbcType=VARCHAR}, #{stype,jdbcType=CHAR}, 
+      #{cont,jdbcType=VARCHAR}, #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.AidgoldLog" >
+    insert into t_zjgj_aidgold_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="stype != null" >
+        stype,
+      </if>
+      <if test="cont != null" >
+        cont,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=VARCHAR},
+      </if>
+      <if test="stype != null" >
+        #{stype,jdbcType=CHAR},
+      </if>
+      <if test="cont != null" >
+        #{cont,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.AidgoldLog" >
+    update t_zjgj_aidgold_log
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=VARCHAR},
+      </if>
+      <if test="stype != null" >
+        stype = #{stype,jdbcType=CHAR},
+      </if>
+      <if test="cont != null" >
+        cont = #{cont,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.AidgoldLog" >
+    update t_zjgj_aidgold_log
+    set mid = #{mid,jdbcType=VARCHAR},
+      stype = #{stype,jdbcType=CHAR},
+      cont = #{cont,jdbcType=VARCHAR},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>

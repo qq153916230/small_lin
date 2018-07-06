@@ -1,0 +1,105 @@
+@charset "utf-8";
+/* reset */
+html, body, header, footer, nav, article, section, aside, time, code, div, p, ul, ol, li, dl, dd, dt, h1, h2, h3, a, span, strong, em, small, form, label, input, select, textarea {
+    margin: 0;
+    padding: 0;
+}
+article, aside, audio, footer, header, nav, section, video { display: block }
+:focus { outline: 0; }
+.clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+.clearfix { display: block; }
+a{color:#404040;text-decoration:none;}
+em{font-style:normal;}
+ol, ul{ list-style: none; }
+html{font-size:16px;}
+body{font:16px "微软雅黑",sans-serif;color:#404040;}
+.red{color:#a71e32;}
+/*common*/
+
+.wrap,.boc_content{max-width:320px;margin:0 auto;overflow:hidden;}
+.home_header,.home_header_news,.main,.box,.box2,.news_box,.list,.news_btn,.content_page,.tab_content{padding:0 2.4583%;}
+.logo,.box .title,.box ul,.box2,.footer_border,.input_info,.search_btn,.page_footer,.sort_time,.content_page table{margin-top:10px;}
+.sina_link,.wx_link,.cp_link{display:inline-block;background-size:24px 19px;min-width:24px;min-height:19px;margin-left:10px;}
+
+/*首页*/
+.home_header{padding:20px 2.4583% 20px 2.4583%;border-bottom: 2px solid #a71e32}
+.logo{width:73%;}
+.logo1{width:25%;}
+
+
+.box{font-size:0.875em;}
+.box .title{border:0;padding:0 0 0 20px;line-height:1.9em;font-size:0.875em;}
+
+.box2 li{float:left;background:url(../images/boc2013_square.jpg) no-repeat 0 5px;background-size:2px 2px;padding-left:15px;	width:30%;font-size:0.875em;}
+.box2 li a{color:#69a1d5;}
+.box ul li a{display:block;padding:8px 0;}
+.box ul li{float:left;border:1px solid #cccccc;border-radius:3px;margin:0 6px 0 0;white-space:nowrap;text-align:center;width:24%;}
+.box ul li:last-child{margin:0;width:45%;}
+.box1 .title,.box3 .title,.box4 .title{background-size:16px 17px;}
+.main,.boc_main{background:#efefef;padding:15px 2.4583%;position:relative;}
+.ways{border:1px solid #ccc;border-radius:1px;margin:0 0 15px 0;box-shadow:0px 1px 6px #dcdcdc;background:#fff;padding-bottom:15px;
+);
+}
+#header_title{
+    height:34px;
+    background-color: #eaeaea;
+    padding-top: 16px;
+}
+#header_title p{
+    display: block;
+    text-align: center;
+
+
+}
+#intro{
+    padding:30px 18px;
+    line-height: 25px;
+}
+#intro p{
+    /*font-size: 20px;*/
+}
+#intro p span{
+    color:#FC8921;
+    font-weight: 600;
+
+}
+.spot{
+    margin-bottom: -5px;
+    margin-right: 5px;
+}
+
+
+/*提额方法*/
+.ways{
+
+}
+.ways h4{
+    margin:0;
+    padding:10px;
+    border-bottom:1px solid #ccc;
+}
+.ways p{
+    padding:15px;
+    line-height: 25px;
+
+}
+.cover{
+    background: url("../images/zjlogo.png") no-repeat center;
+    background-size: 150px;
+    opacity: 0.8;
+}
+.footer_info {
+    border-top: 1px solid #ccc;
+    box-shadow: -1px 0 4px #f1f1f1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.875em;
+}
+.footer_info p{
+    color:#777;
+    font-size: 12px;
+    line-height: 25px;
+}
+.footer_info .warn{
+    color:#ccc;
+}

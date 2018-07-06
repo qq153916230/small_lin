@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.WXRedpackDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.WXRedpack" >
+    <result column="openid" property="openid" jdbcType="CHAR" />
+    <result column="from_openid" property="fromOpenid" jdbcType="CHAR" />
+    <result column="ptype" property="ptype" jdbcType="SMALLINT" />
+    <result column="fee" property="fee" jdbcType="INTEGER" />
+    <result column="result" property="result" jdbcType="VARCHAR" />
+    <result column="billno" property="billno" jdbcType="VARCHAR" />
+    <result column="pdate" property="pdate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    openid, from_openid, ptype, fee, result, billno, pdate
+  </sql>
+  
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(*) from wx_redpack 
+  	<where>
+  		<if test="from != null and to != null" >and pdate between #{from} and #{to} </if>
+  		<if test="openid != ''" > and openid = #{openid} </if>
+  	</where>
+  </select>
+  <!-- 查询列表 -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from wx_redpack
+  	<where>
+  		<if test="from != null and to != null" >and pdate between #{from} and #{to} </if>
+  		<if test="openid != ''" > and openid = #{openid} </if> 
+  	</where>
+  	order by pdate desc limit #{page},#{rows}
+  </select>
+  <!-- 条件查询总金额 -->
+  <select id="selectCountMoney" resultType="java.lang.String" parameterType="java.util.Map">
+  	select sum(fee) from wx_redpack 
+  	<where>
+  		<if test="from != null and to != null" >and pdate between #{from} and #{to} </if>
+  		<if test="openid != ''" > and openid = #{openid} </if>
+  	</where>
+  </select>
+  
+  
+  
+  <insert id="insert" parameterType="com.app.entity.WXRedpack" >
+    insert into wx_redpack (openid, from_openid, ptype, 
+      fee, result, billno, 
+      pdate)
+    values (#{openid,jdbcType=CHAR}, #{fromOpenid,jdbcType=CHAR}, #{ptype,jdbcType=SMALLINT}, 
+      #{fee,jdbcType=INTEGER}, #{result,jdbcType=VARCHAR}, #{billno,jdbcType=VARCHAR}, 
+      #{pdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.WXRedpack" >
+    insert into wx_redpack
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="openid != null" >
+        openid,
+      </if>
+      <if test="fromOpenid != null" >
+        from_openid,
+      </if>
+      <if test="ptype != null" >
+        ptype,
+      </if>
+      <if test="fee != null" >
+        fee,
+      </if>
+      <if test="result != null" >
+        result,
+      </if>
+      <if test="billno != null" >
+        billno,
+      </if>
+      <if test="pdate != null" >
+        pdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="openid != null" >
+        #{openid,jdbcType=CHAR},
+      </if>
+      <if test="fromOpenid != null" >
+        #{fromOpenid,jdbcType=CHAR},
+      </if>
+      <if test="ptype != null" >
+        #{ptype,jdbcType=SMALLINT},
+      </if>
+      <if test="fee != null" >
+        #{fee,jdbcType=INTEGER},
+      </if>
+      <if test="result != null" >
+        #{result,jdbcType=VARCHAR},
+      </if>
+      <if test="billno != null" >
+        #{billno,jdbcType=VARCHAR},
+      </if>
+      <if test="pdate != null" >
+        #{pdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+</mapper>

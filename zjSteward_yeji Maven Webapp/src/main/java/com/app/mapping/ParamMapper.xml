@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.ParamDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.Param" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="pgroup" property="pgroup" jdbcType="INTEGER" />
+    <result column="ptype" property="ptype" jdbcType="SMALLINT" />
+    <result column="pname" property="pname" jdbcType="VARCHAR" />
+    <result column="pvalue" property="pvalue" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, pgroup, ptype, pname, pvalue, remark
+  </sql>
+  <!-- 获取扣款密码 -->
+  <select id="selectPaypass" resultType="java.lang.String">
+  	select pvalue from t_sys_param where pname = 'paypass' and pgroup = '1'
+  </select>
+  <!-- 根据pname获取pvalue -->
+  <select id="selectByPname" resultType="java.lang.String" parameterType="java.lang.String">
+  	select pvalue from t_sys_param where pname = #{pname,jdbcType=VARCHAR}
+  </select>
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_sys_param
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_sys_param
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.Param" >
+    insert into t_sys_param (tid, pgroup, ptype, 
+      pname, pvalue, remark
+      )
+    values (#{tid,jdbcType=INTEGER}, #{pgroup,jdbcType=INTEGER}, #{ptype,jdbcType=SMALLINT}, 
+      #{pname,jdbcType=VARCHAR}, #{pvalue,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.Param" >
+    insert into t_sys_param
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="pgroup != null" >
+        pgroup,
+      </if>
+      <if test="ptype != null" >
+        ptype,
+      </if>
+      <if test="pname != null" >
+        pname,
+      </if>
+      <if test="pvalue != null" >
+        pvalue,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="pgroup != null" >
+        #{pgroup,jdbcType=INTEGER},
+      </if>
+      <if test="ptype != null" >
+        #{ptype,jdbcType=SMALLINT},
+      </if>
+      <if test="pname != null" >
+        #{pname,jdbcType=VARCHAR},
+      </if>
+      <if test="pvalue != null" >
+        #{pvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.Param" >
+    update t_sys_param
+    <set >
+      <if test="pgroup != null" >
+        pgroup = #{pgroup,jdbcType=INTEGER},
+      </if>
+      <if test="ptype != null" >
+        ptype = #{ptype,jdbcType=SMALLINT},
+      </if>
+      <if test="pname != null" >
+        pname = #{pname,jdbcType=VARCHAR},
+      </if>
+      <if test="pvalue != null" >
+        pvalue = #{pvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.Param" >
+    update t_sys_param
+    set pgroup = #{pgroup,jdbcType=INTEGER},
+      ptype = #{ptype,jdbcType=SMALLINT},
+      pname = #{pname,jdbcType=VARCHAR},
+      pvalue = #{pvalue,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>

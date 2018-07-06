@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.UserDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.User" >
+    <id column="UserName" property="username" jdbcType="VARCHAR" />
+    <result column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="UserPass" property="userpass" jdbcType="VARCHAR" />
+    <result column="Nick" property="nick" jdbcType="VARCHAR" />
+    <result column="UserGroup" property="usergroup" jdbcType="INTEGER" />
+    <result column="UserRole" property="userrole" jdbcType="SMALLINT" />
+    <result column="UserRight" property="userright" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+    <result column="ucode" property="ucode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    UserName, tid, UserPass, Nick, UserGroup, UserRole, UserRight, remark, gdate, ucode
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_sys_user
+    where UserName = #{username,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_sys_user
+    where UserName = #{username,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.User" >
+    insert into t_sys_user (UserName, tid, UserPass, 
+      Nick, UserGroup, UserRole, 
+      UserRight, remark, gdate, 
+      ucode)
+    values (#{username,jdbcType=VARCHAR}, #{tid,jdbcType=INTEGER}, #{userpass,jdbcType=VARCHAR}, 
+      #{nick,jdbcType=VARCHAR}, #{usergroup,jdbcType=INTEGER}, #{userrole,jdbcType=SMALLINT}, 
+      #{userright,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{gdate,jdbcType=TIMESTAMP}, 
+      #{ucode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.User" >
+    insert into t_sys_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="username != null" >
+        UserName,
+      </if>
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="userpass != null" >
+        UserPass,
+      </if>
+      <if test="nick != null" >
+        Nick,
+      </if>
+      <if test="usergroup != null" >
+        UserGroup,
+      </if>
+      <if test="userrole != null" >
+        UserRole,
+      </if>
+      <if test="userright != null" >
+        UserRight,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+      <if test="ucode != null" >
+        ucode,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="userpass != null" >
+        #{userpass,jdbcType=VARCHAR},
+      </if>
+      <if test="nick != null" >
+        #{nick,jdbcType=VARCHAR},
+      </if>
+      <if test="usergroup != null" >
+        #{usergroup,jdbcType=INTEGER},
+      </if>
+      <if test="userrole != null" >
+        #{userrole,jdbcType=SMALLINT},
+      </if>
+      <if test="userright != null" >
+        #{userright,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ucode != null" >
+        #{ucode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.User" >
+    update t_sys_user
+    <set >
+      <if test="tid != null" >
+        tid = #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="userpass != null" >
+        UserPass = #{userpass,jdbcType=VARCHAR},
+      </if>
+      <if test="nick != null" >
+        Nick = #{nick,jdbcType=VARCHAR},
+      </if>
+      <if test="usergroup != null" >
+        UserGroup = #{usergroup,jdbcType=INTEGER},
+      </if>
+      <if test="userrole != null" >
+        UserRole = #{userrole,jdbcType=SMALLINT},
+      </if>
+      <if test="userright != null" >
+        UserRight = #{userright,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ucode != null" >
+        ucode = #{ucode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where UserName = #{username,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.User" >
+    update t_sys_user
+    set tid = #{tid,jdbcType=INTEGER},
+      UserPass = #{userpass,jdbcType=VARCHAR},
+      Nick = #{nick,jdbcType=VARCHAR},
+      UserGroup = #{usergroup,jdbcType=INTEGER},
+      UserRole = #{userrole,jdbcType=SMALLINT},
+      UserRight = #{userright,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      gdate = #{gdate,jdbcType=TIMESTAMP},
+      ucode = #{ucode,jdbcType=VARCHAR}
+    where UserName = #{username,jdbcType=VARCHAR}
+  </update>
+</mapper>

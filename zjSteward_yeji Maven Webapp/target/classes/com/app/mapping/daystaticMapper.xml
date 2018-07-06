@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.daystaticMapper" >
+  <resultMap id="BaseResultMap" type="com.app.entity.daystatic" >
+    <result column="tjdate" property="tjdate" jdbcType="DATE" />
+    <result column="t0_paymoney" property="t0Paymoney" jdbcType="DECIMAL" />
+    <result column="t0_paynum" property="t0Paynum" jdbcType="INTEGER" />
+    <result column="t1_paymoney" property="t1Paymoney" jdbcType="DECIMAL" />
+    <result column="t1_paynum" property="t1Paynum" jdbcType="INTEGER" />
+    <result column="pay_totle" property="payTotle" jdbcType="DECIMAL" />
+    <result column="money_bt" property="moneyBt" jdbcType="DECIMAL" />
+    <result column="money_tx" property="moneyTx" jdbcType="DECIMAL" />
+    <result column="count_tx" property="countTx" jdbcType="INTEGER" />
+  </resultMap>
+
+	
+	<!-- 查询业绩总条数 -->
+  <select id="selectDaystaticCount" resultType="java.lang.Integer">
+  	select count(*) from t_report_daystatic
+  </select>
+  <!-- 查询业绩 -->
+  <select id="selectDaystatic"  resultMap="BaseResultMap"  parameterType="java.lang.String">
+  	select 
+  	tjdate, t0_paymoney, t0_paynum, 
+      t1_paymoney, t1_paynum, pay_totle, 
+      money_bt, money_tx, count_tx
+      from t_report_daystatic
+      
+      <where>
+      	<if test="gdate != null" >
+        	tjdate like #{gdate,jdbcType=DATE}
+      	</if>
+      </where>
+      
+  </select>
+  
+  <!-- 通过left join 查询，插入数据库 -->
+  <insert id="insertBySelectJoin">
+  	INSERT INTO t_report_daystatic (tjdate,t0_paymoney,t0_paynum,t1_paymoney,t1_paynum,pay_totle,money_bt,money_tx,count_tx) 
+	SELECT a.paydate,IFNULL(a.t0_money,0) t0_money,IFNULL(a.t0_count,0) t0_count,IFNULL(b.t1_money,0) t1_money,IFNULL(b.t1_count,0) t1_count,IFNULL(a.t0_money,0)+IFNULL(b.t1_money,0) t_money,
+	       IFNULL(c.money_bt,0) money_bt,IFNULL(d.money_tx,0) money_tx,IFNULL(d.count_tx,0) count_tx FROM (SELECT paydate,SUM(paymoney) t0_money,COUNT(paymoney) t0_count FROM t_zjgj_bill_daytrade WHERE ttype = 'T0' AND paydate=DATE_SUB(CURDATE(),INTERVAL 1 DAY) GROUP BY paydate) AS a	
+	LEFT JOIN (SELECT paydate,SUM(paymoney) t1_money,COUNT(paymoney) t1_count FROM t_zjgj_bill_daytrade WHERE ttype = 'T1' AND paydate=DATE_SUB(CURDATE(),INTERVAL 1 DAY) GROUP BY paydate) AS b	ON a.paydate=b.paydate	
+	LEFT JOIN (SELECT sdate,SUM(money_bt) money_bt FROM t_zjgj_subsidy WHERE sdate=DATE_SUB(CURDATE(),INTERVAL 1 DAY) GROUP BY sdate) AS c ON a.paydate=c.sdate
+	LEFT JOIN (SELECT DATE_FORMAT(status_date,'%Y-%m-%d') status_date,SUM(money) money_tx,COUNT(1) count_tx FROM t_zjgj_tx_result WHERE STATUS=7 AND DATE_FORMAT(status_date,'%Y-%m-%d')=DATE_SUB(CURDATE(),INTERVAL 1 DAY) GROUP BY DATE_FORMAT(status_date,'%Y-%m-%d')) AS d ON a.paydate = d.status_date
+	WHERE  a.paydate=DATE_SUB(CURDATE(),INTERVAL 1 DAY)
+  </insert>
+  
+  <!-- 查询每个字段总和 -->
+  <!-- <select id="selectColTotle"  resultMap="BaseResultMap" parameterType="java.lang.String">
+  	select sum(t0_paymoney) t0_paymoney,sum(t0_paynum) t0_paynum,sum(t1_paymoney) t1_paymoney
+  			,sum(t1_paynum) t1_paynum,sum(pay_totle) pay_totle,sum(money_bt) money_bt,sum(money_tx) money_tx,sum(count_tx) count_tx
+  		from t_report_daystatic
+  		
+  		<where>
+      	<if test="date != null" >
+        	tjdate like #{date,jdbcType=DATE}
+      	</if>
+      </where>
+  </select> -->
+  
+
+
+
+  <insert id="insert" parameterType="com.app.entity.daystatic" >
+    insert into t_report_daystatic (tjdate, t0_paymoney, t0_paynum, 
+      t1_paymoney, t1_paynum, pay_totle, 
+      money_bt, money_tx, count_tx
+      )
+    values (#{gdate,jdbcType=DATE}, #{t0Paymoney,jdbcType=DECIMAL}, #{t0Paynum,jdbcType=INTEGER}, 
+      #{t1Paymoney,jdbcType=DECIMAL}, #{t1Paynum,jdbcType=INTEGER}, #{payTotle,jdbcType=DECIMAL}, 
+      #{moneyBt,jdbcType=DECIMAL}, #{moneyTx,jdbcType=DECIMAL}, #{countTx,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.daystatic" >
+    insert into t_report_daystatic
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="gdate != null" >
+        tjdate,
+      </if>
+      <if test="t0Paymoney != null" >
+        t0_paymoney,
+      </if>
+      <if test="t0Paynum != null" >
+        t0_paynum,
+      </if>
+      <if test="t1Paymoney != null" >
+        t1_paymoney,
+      </if>
+      <if test="t1Paynum != null" >
+        t1_paynum,
+      </if>
+      <if test="payTotle != null" >
+        pay_totle,
+      </if>
+      <if test="moneyBt != null" >
+        money_bt,
+      </if>
+      <if test="moneyTx != null" >
+        money_tx,
+      </if>
+      <if test="countTx != null" >
+        count_tx,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="gdate != null" >
+        #{gdate,jdbcType=DATE},
+      </if>
+      <if test="t0Paymoney != null" >
+        #{t0Paymoney,jdbcType=DECIMAL},
+      </if>
+      <if test="t0Paynum != null" >
+        #{t0Paynum,jdbcType=INTEGER},
+      </if>
+      <if test="t1Paymoney != null" >
+        #{t1Paymoney,jdbcType=DECIMAL},
+      </if>
+      <if test="t1Paynum != null" >
+        #{t1Paynum,jdbcType=INTEGER},
+      </if>
+      <if test="payTotle != null" >
+        #{payTotle,jdbcType=DECIMAL},
+      </if>
+      <if test="moneyBt != null" >
+        #{moneyBt,jdbcType=DECIMAL},
+      </if>
+      <if test="moneyTx != null" >
+        #{moneyTx,jdbcType=DECIMAL},
+      </if>
+      <if test="countTx != null" >
+        #{countTx,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

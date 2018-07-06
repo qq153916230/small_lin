@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.app.dao.AidgoldDao" >
+  <resultMap id="BaseResultMap" type="com.app.entity.Aidgold" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="mid" property="mid" jdbcType="INTEGER" />
+    <result column="agentid" property="agentid" jdbcType="INTEGER" />	<!-- 新增 -->
+    <result column="jkmoney" property="jkmoney" jdbcType="INTEGER" />
+    <result column="jkdate" property="jkdate" jdbcType="TIMESTAMP" />
+    <result column="enddate" property="enddate" jdbcType="TIMESTAMP" />
+    <result column="jkdays" property="jkdays" jdbcType="INTEGER" />
+    <result column="jkrate" property="jkrate" jdbcType="DECIMAL" />
+    <result column="hkmoney" property="hkmoney" jdbcType="INTEGER" />
+    <result column="cgrate" property="cgrate" jdbcType="DECIMAL" />
+    <result column="skbankno" property="skbankno" jdbcType="CHAR" />
+    <result column="skname" property="skname" jdbcType="CHAR" />
+    <result column="skbank" property="skbank" jdbcType="CHAR" />
+    <result column="jkcheck" property="jkcheck" jdbcType="SMALLINT" />
+    <result column="cstimes" property="cstimes" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="retype" property="retype" jdbcType="INTEGER" />
+    <result column="detail" property="declare" jdbcType="VARCHAR" />
+    <result column="gdate" property="gdate" jdbcType="TIMESTAMP" />
+    
+    <result column="UserName" property="userName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, mid, jkmoney, jkdate, enddate, jkdays, jkrate, hkmoney, cgrate, skbankno, skname, skbank, 
+    jkcheck, cstimes, remark, gdate, detail, agentid, retype
+  </sql>
+  <!-- 条件查询总条数 -->
+  <select id="selectTotle" resultType="java.lang.Long" parameterType="java.util.Map">
+  	select count(1) from t_zjgj_aidgold 
+  	<where>
+  		<if test="from != null and to != null" >and jkdate between #{from} and #{to} </if>
+  		<if test="skname != ''" > and skname = #{skname} </if>
+  		<!-- <if test="jkcheck != ''" > and jkcheck = #{jkcheck} </if> -->
+  		<if test="jkcheck != '' and jkcheck != null and jkcheck != 0 " > and jkcheck = #{jkcheck} </if>
+  		<if test="jkcheck != '' and jkcheck != null and jkcheck == 0 " > and jkcheck &lt; 10 </if>
+  		<if test="orderid != null" > and orderid = #{orderid} </if>
+  		<if test="mid != null" > and mid = #{mid} </if>
+  	</where>
+  </select>
+  
+  <!-- 查询列表 -->
+  <!-- <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> from t_zjgj_aidgold
+  	<where>
+  		<if test="from != null and to != null" >and jkdate between #{from} and #{to} </if>
+  		<if test="skname != ''" > and skname = #{skname} </if>
+  		<if test="jkcheck != ''" > and jkcheck = #{jkcheck} </if>
+  		<if test="orderid != null" > and orderid = #{orderid} </if>
+  	</where>
+  	order by tid desc limit #{page},#{rows}
+  </select> -->
+  <select id="selectList" resultMap="BaseResultMap"  parameterType="java.util.Map">
+  	select <include refid="Base_Column_List" /> ,UserName from (
+  	select <include refid="Base_Column_List" /> from t_zjgj_aidgold
+  	<where>
+  		<if test="from != null and to != null" >and jkdate between #{from} and #{to} </if>
+  		<if test="skname != '' and skname != null" > and skname = #{skname} </if>
+  		<if test="jkcheck != '' and jkcheck != null and jkcheck != 0 " > and jkcheck = #{jkcheck} </if>
+  		<if test="jkcheck != '' and jkcheck != null and jkcheck == 0 " > and jkcheck &lt; 10 </if>
+  		<if test="orderid != null" > and orderid = #{orderid} </if>
+  		<if test="mid != null" > and mid = #{mid} </if>
+  	</where>
+  	) as a
+  	left join (
+  		select mid as agentmid,Nick as UserName from t_zjgj_agent
+  	) as b
+  	on a.agentid = b.agentmid
+  	order by tid desc limit #{page},#{rows}
+  </select>
+  <update id="addcs" parameterType="java.lang.Integer">
+  	update t_zjgj_aidgold set cstimes = cstimes + 1 where tid = #{tid}
+  </update>
+  <!-- 根据tid批量更新jkcheck -->
+	<update id="updateStatus" parameterType="Map">    
+		update t_zjgj_aidgold set jkcheck = #{status}, jkdate = #{jkdate}, enddate = #{enddate}
+		where tid in     
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")" >    
+			#{item}    
+		</foreach>  
+	</update>
+	<!-- 根据代理商mid获取 t_zjgj_member 表的email -->
+	<select id="selectAgentEmail" parameterType="java.lang.Integer" resultType="java.lang.String">
+		select Email from t_zjgj_member where mid = #{agentMid}
+	</select>
+	<select id="selLogCon" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT cont FROM t_zjgj_log WHERE MID = #{mid} AND stype = #{stype} ORDER BY tid DESC LIMIT 1
+	</select>
+	
+	<!-- 查询总交易额 和 总交易笔数 -->
+	<select id="selectTradeMap" resultType="java.util.Map" parameterType="java.lang.String" >
+	    select 
+	    sum(paymoney) as money, COUNT(1) as num
+	    from t_rc_t0
+	    where merchantcode = #{umobile,jdbcType=BIGINT} 
+	    	and merchantname = #{uname,jdbcType=VARCHAR}
+	  </select>
+	  
+	  <!-- 查询还款总数 -->
+	  <select id="selectHKTotle" resultType="java.lang.Long">
+	  	SELECT count(*) FROM (
+			(SELECT <include refid="Base_Column_List" /> FROM t_zjgj_aidgold WHERE jkcheck = 50 OR jkcheck = 51 OR jkcheck = 43) AS a
+			LEFT JOIN 
+			(SELECT rid,hkdate FROM t_zjgj_aidgold_fqhk WHERE STATUS = 0 GROUP BY rid) AS b
+			ON tid = rid
+		) WHERE TO_DAYS(hkdate) - TO_DAYS(NOW()) BETWEEN 0 AND 3
+	  </select>
+	  <!-- 查询还款列表 -->
+	  <select id="selecHKtList" resultMap="BaseResultMap">
+	  	SELECT <include refid="Base_Column_List" />, UserName FROM (
+	  		(
+				(SELECT <include refid="Base_Column_List" /> FROM t_zjgj_aidgold WHERE jkcheck = 50 OR jkcheck = 51 OR jkcheck = 43) AS a
+				LEFT JOIN 
+				(SELECT rid,hkdate FROM t_zjgj_aidgold_fqhk WHERE STATUS = 0 GROUP BY rid) AS b
+				ON tid = rid
+			)left join (
+		  		select mid as agentmid,Nick as UserName from t_zjgj_agent
+		  	) as c
+		  	on a.agentid = c.agentmid
+		) WHERE TO_DAYS(hkdate) - TO_DAYS(NOW()) BETWEEN 0 AND 3 order by TO_DAYS(hkdate) - TO_DAYS(NOW()) desc
+	  </select>
+	  
+	  <!-- 查询逾期总数 -->
+	  <select id="selectOverdueTotle" resultType="java.lang.Long">
+	  	SELECT count(*) FROM (
+			(SELECT <include refid="Base_Column_List" /> FROM t_zjgj_aidgold WHERE jkcheck = 50 OR jkcheck = 51 OR jkcheck = 43) AS a
+			LEFT JOIN 
+			(SELECT rid,hkdate FROM t_zjgj_aidgold_fqhk WHERE STATUS = 0 GROUP BY rid) AS b
+			ON tid = rid
+		) WHERE TO_DAYS(hkdate) - TO_DAYS(NOW()) &lt; 0
+	  </select>
+	  <!-- 查询逾期列表 -->
+	  <select id="selectOverduetList" resultMap="BaseResultMap">
+	  	SELECT <include refid="Base_Column_List" />, UserName FROM (
+	  		(
+				(SELECT <include refid="Base_Column_List" /> FROM t_zjgj_aidgold WHERE jkcheck = 50 OR jkcheck = 51 OR jkcheck = 43) AS a
+				LEFT JOIN 
+				(SELECT rid,hkdate FROM t_zjgj_aidgold_fqhk WHERE STATUS = 0 GROUP BY rid) AS b
+				ON tid = rid
+			)left join (
+		  		select mid as agentmid,Nick as UserName from t_zjgj_agent
+		  	) as c
+		  	on a.agentid = c.agentmid
+		) WHERE TO_DAYS(hkdate) - TO_DAYS(NOW()) &lt; 0 order by TO_DAYS(hkdate) - TO_DAYS(NOW()) desc
+	  </select>
+	  
+  <!-- 查询卡表的ischeck是否经过二要素验证 -->
+  <select id="selectCardIscheck" parameterType="java.lang.Integer" resultType="java.lang.String">
+  	select count(ischeck) from t_zjgj_card where mid = #{imid} and ischeck = 1
+  </select>
+  
+  <!-- 查询Daytrade表近一个月的总交易额 -->
+	<select id="selectDaytradeRecentlyPaymoney" resultType="java.math.BigDecimal">
+	    select sum(paymoney)
+	    from t_zjgj_pos_daytrade
+	    where merchantcode = #{umobile,jdbcType=BIGINT} 
+	    	and merchantname = #{uname,jdbcType=VARCHAR} 
+	    	and paydate >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+	  </select>
+  
+  <!-- 根据mid修改 -->
+  <update id="updateByMidSelective" parameterType="com.app.entity.Aidgold" >
+    update t_zjgj_aidgold
+    <set >
+      <if test="agentid != null" >
+        agentid = #{agentid,jdbcType=INTEGER},
+      </if>
+      <if test="jkmoney != null" >
+        jkmoney = #{jkmoney,jdbcType=INTEGER},
+      </if>
+      <if test="jkdate != null" >
+        jkdate = #{jkdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="enddate != null" >
+        enddate = #{enddate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jkdays != null" >
+        jkdays = #{jkdays,jdbcType=INTEGER},
+      </if>
+      <if test="jkrate != null" >
+        jkrate = #{jkrate,jdbcType=DECIMAL},
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney = #{hkmoney,jdbcType=INTEGER},
+      </if>
+      <if test="cgrate != null" >
+        cgrate = #{cgrate,jdbcType=DECIMAL},
+      </if>
+      <if test="skbankno != null" >
+        skbankno = #{skbankno,jdbcType=CHAR},
+      </if>
+      <if test="skname != null" >
+        skname = #{skname,jdbcType=CHAR},
+      </if>
+      <if test="skbank != null" >
+        skbank = #{skbank,jdbcType=CHAR},
+      </if>
+      <if test="jkcheck != null" >
+        jkcheck = #{jkcheck,jdbcType=SMALLINT},
+      </if>
+      <if test="cstimes != null" >
+        cstimes = #{cstimes,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where mid = #{mid,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 查找member表数据 -->
+	<select id="selectPhoneName" resultType="java.util.Map" parameterType="java.lang.Integer" >
+	    select mobile, nick from t_zjgj_member where mid = #{imid}
+	  </select>
+	  
+	<!-- 查询借款次数 -->
+	<select id="selectJkNumByMid" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(1) from t_zjgj_aidgold where mid = #{mid} and jkcheck = 99
+	</select>
+	
+	<!-- t_zjgj_member_bank数据 -->
+	<select id="selectBankData" parameterType="java.lang.Integer" resultType="java.util.Map">
+		select account_number as cardno, account_name as master, bank_open as bankname, mobile from t_zjgj_member_bank where mid = #{mid} 
+	</select>
+	
+	<!-- 更新 t_zjgj_member 的 verfiy_flag 为 0 -->
+  	<update id="updateMemberFlag" parameterType="java.lang.Integer">
+  		update t_zjgj_member set verfiy_flag = 0 where mid = #{mid}
+  	</update>
+  
+  <!-- 条件查询借款总额 jkmoney -->
+  <select id="sumJKmoney" resultType="java.lang.String" parameterType="java.util.Map">
+  	select sum(jkmoney) from t_zjgj_aidgold 
+  	<where>
+  		<if test="from != null and to != null" >and jkdate between #{from} and #{to} </if>
+  		<if test="skname != ''" > and skname = #{skname} </if>
+  		<if test="jkcheck != '' and jkcheck != null and jkcheck != 0 " > and jkcheck = #{jkcheck} </if>
+  		<if test="jkcheck != '' and jkcheck != null and jkcheck == 0 " > and jkcheck &lt; 10 </if>
+  	</where>
+  </select>
+  <!-- 查询借款总额 jkmoney -->
+  <select id="sumJKmoney80" resultType="java.lang.String">
+  	SELECT sum(jkmoney) FROM (
+		(SELECT <include refid="Base_Column_List" /> FROM t_zjgj_aidgold WHERE jkcheck = 50 OR jkcheck = 51 OR jkcheck = 43) AS a
+		LEFT JOIN 
+		(SELECT rid,hkdate FROM t_zjgj_aidgold_fqhk WHERE STATUS = 0 GROUP BY rid) AS b
+		ON tid = rid
+	) WHERE TO_DAYS(hkdate) - TO_DAYS(NOW()) BETWEEN 0 AND 3
+  </select>
+  <!-- 查询借款总额 jkmoney -->
+  <select id="sumJKmoney81" resultType="java.lang.String">
+	SELECT sum(jkmoney) FROM (
+			(SELECT <include refid="Base_Column_List" /> FROM t_zjgj_aidgold WHERE jkcheck = 50 OR jkcheck = 51 OR jkcheck = 43) AS a
+			LEFT JOIN 
+			(SELECT rid,hkdate FROM t_zjgj_aidgold_fqhk WHERE STATUS = 0 GROUP BY rid) AS b
+			ON tid = rid
+		) WHERE TO_DAYS(hkdate) - TO_DAYS(NOW()) &lt; 0
+  </select>
+  
+  <!-- 根据手机查询t_zjgj_agent 的 mid -->
+  <select id="selectMidByMobileFromAgent" parameterType="java.lang.String" resultType="java.lang.Integer">
+  	select mid from t_zjgj_agent where mobile = #{mobile} limit 1
+  </select>
+  
+  <!--  -->
+  <update id="updateAidgoldInfoIsupdateTo1" parameterType="java.lang.Integer">
+  	update t_zjgj_aidgold_info set isupdate = 1 where mid = #{mid}
+  </update>
+  
+  <!-- 查询card -->
+  <select id="selectCardList" parameterType="java.lang.Integer" resultType="java.util.Map">
+  	select master, cardno, bank, ischeck from t_zjgj_card where mid = #{mid}
+  </select>
+  
+  <!-- 修改member表real_xygd -->
+  <update id="updateMemberXYGD">
+  	update t_zjgj_member set real_xygd = #{jkmoney} where mid = #{mid}
+  </update>
+  
+  <!-- 查询当月的提额数量 -->
+  <select id="selectHasTE" resultType="java.lang.Integer">
+  	SELECT COUNT(1) FROM t_zjgj_aidgold_telog WHERE MID = #{mid} AND adata LIKE #{searchData}
+  </select>
+  
+  <!-- 插入t_zjgj_aidgold_telog 提额记录 -->
+  <insert id="insertTelog" parameterType="java.util.Map">
+  	insert into t_zjgj_aidgold_telog (mid, aid, terate, sumamount, addamount, adata)
+    values (#{mid}, #{aid}, #{terate}, #{sumamount}, #{addamount}, #{adata})
+  </insert>
+  
+  <!-- 插入t_zjgj_aidgold_blacklist 提额记录 -->
+  <insert id="insertBlacklist" parameterType="java.util.Map">
+  	insert into t_zjgj_aidgold_blacklist (mid, uname, cdate, remark)
+    values (#{mid}, #{uname}, #{cdate}, #{remark})
+  </insert>
+  
+  <!-- 黑名单列表 -->
+  <select id="selectBlacklist" parameterType="java.lang.Integer" resultType="java.util.Map">
+  	select tid, uname, cdate, remark from t_zjgj_aidgold_blacklist
+  	<where>
+  		<if test="_parameter != 0"> mid = #{mid} </if>
+  	</where>
+  	order by cdate desc
+  </select>
+  
+  <!-- 移除黑名单 -->
+  <delete id="deleteBlacklist" parameterType="java.lang.Integer">
+  	delete from t_zjgj_aidgold_blacklist where tid = #{tid}
+  </delete>
+  
+  <!-- 查询黑名单tid date -->
+  <select id="selectBlacklistTidDate" resultType="java.util.Map">
+  	select tid, cdate from t_zjgj_aidgold_blacklist
+  </select>
+  <!-- 批量删除 黑名单 -->
+  <delete id="deleteBlacklistBatch" parameterType="java.util.List">
+  	delete from t_zjgj_aidgold_blacklist where tid in 
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")" >    
+            #{item}    
+        </foreach>  
+  </delete>
+  
+  <!-- 查询数据库捷安对象 -->
+  <select id="selectJieAnResp" parameterType="java.util.Map" resultType="java.util.Map">
+  	select uni_sign, jsonstr from t_zjgj_aidgold_jiean_resp
+  	<where>
+  		<if test="type == 'MPTIME' " >uni_sign = #{mobile} and prod_id = 'MPTIME' </if>
+  		<if test="type == 'SFSUTJ' " >uni_sign = #{idno} and prod_id = 'SFSUTJ' </if>
+  		<if test="type == 'MP3' " >uni_sign = #{mobile} and prod_id = 'MP3' </if>
+  		and gdate like #{cdate}
+  	</where>
+  </select>
+  
+  <!-- 插入捷安返回数据 -->
+  <insert id="insertJieAnResp" parameterType="java.util.Map">
+  	insert into t_zjgj_aidgold_jiean_resp (respCode, ordId, prod_id, uni_sign, jsonstr)
+    values (#{respCode}, #{ordId}, #{prod_id}, #{uni_sign}, #{jsonstr})
+  </insert>
+  
+  <!-- 根据 手机 查找t_rc_pos_assign表mid -->
+  <select id="selectMidFromAssign" parameterType="java.lang.String" resultType="java.lang.Integer">
+  	select mid from t_rc_pos_assign where merchantcode = #{mobile} order by mid desc limit 1
+  </select>
+  
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_zjgj_aidgold
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_zjgj_aidgold
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.app.entity.Aidgold" >
+    insert into t_zjgj_aidgold (tid, mid, agentid, 
+      jkmoney, jkdate, enddate, 
+      jkdays, jkrate, hkmoney, 
+      cgrate, skbankno, skname, 
+      skbank, jkcheck, cstimes, 
+      remark, gdate)
+    values (#{tid,jdbcType=INTEGER}, #{mid,jdbcType=INTEGER}, #{agentid,jdbcType=INTEGER}, 
+      #{jkmoney,jdbcType=INTEGER}, #{jkdate,jdbcType=TIMESTAMP}, #{enddate,jdbcType=TIMESTAMP}, 
+      #{jkdays,jdbcType=INTEGER}, #{jkrate,jdbcType=DECIMAL}, #{hkmoney,jdbcType=INTEGER}, 
+      #{cgrate,jdbcType=DECIMAL}, #{skbankno,jdbcType=CHAR}, #{skname,jdbcType=CHAR}, 
+      #{skbank,jdbcType=CHAR}, #{jkcheck,jdbcType=SMALLINT}, #{cstimes,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR}, #{gdate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.app.entity.Aidgold" >
+    insert into t_zjgj_aidgold
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="mid != null" >
+        mid,
+      </if>
+      <if test="agentid != null" >
+        agentid,
+      </if>
+      <if test="jkmoney != null" >
+        jkmoney,
+      </if>
+      <if test="jkdate != null" >
+        jkdate,
+      </if>
+      <if test="enddate != null" >
+        enddate,
+      </if>
+      <if test="jkdays != null" >
+        jkdays,
+      </if>
+      <if test="jkrate != null" >
+        jkrate,
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney,
+      </if>
+      <if test="cgrate != null" >
+        cgrate,
+      </if>
+      <if test="skbankno != null" >
+        skbankno,
+      </if>
+      <if test="skname != null" >
+        skname,
+      </if>
+      <if test="skbank != null" >
+        skbank,
+      </if>
+      <if test="jkcheck != null" >
+        jkcheck,
+      </if>
+      <if test="cstimes != null" >
+        cstimes,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="gdate != null" >
+        gdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="mid != null" >
+        #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="agentid != null" >
+        #{agentid,jdbcType=INTEGER},
+      </if>
+      <if test="jkmoney != null" >
+        #{jkmoney,jdbcType=INTEGER},
+      </if>
+      <if test="jkdate != null" >
+        #{jkdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="enddate != null" >
+        #{enddate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jkdays != null" >
+        #{jkdays,jdbcType=INTEGER},
+      </if>
+      <if test="jkrate != null" >
+        #{jkrate,jdbcType=DECIMAL},
+      </if>
+      <if test="hkmoney != null" >
+        #{hkmoney,jdbcType=INTEGER},
+      </if>
+      <if test="cgrate != null" >
+        #{cgrate,jdbcType=DECIMAL},
+      </if>
+      <if test="skbankno != null" >
+        #{skbankno,jdbcType=CHAR},
+      </if>
+      <if test="skname != null" >
+        #{skname,jdbcType=CHAR},
+      </if>
+      <if test="skbank != null" >
+        #{skbank,jdbcType=CHAR},
+      </if>
+      <if test="jkcheck != null" >
+        #{jkcheck,jdbcType=SMALLINT},
+      </if>
+      <if test="cstimes != null" >
+        #{cstimes,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.app.entity.Aidgold" >
+    update t_zjgj_aidgold
+    <set >
+      <if test="mid != null" >
+        mid = #{mid,jdbcType=INTEGER},
+      </if>
+      <if test="agentid != null" >
+        agentid = #{agentid,jdbcType=INTEGER},
+      </if>
+      <if test="jkmoney != null" >
+        jkmoney = #{jkmoney,jdbcType=INTEGER},
+      </if>
+      <if test="jkdate != null" >
+        jkdate = #{jkdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="enddate != null" >
+        enddate = #{enddate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jkdays != null" >
+        jkdays = #{jkdays,jdbcType=INTEGER},
+      </if>
+      <if test="jkrate != null" >
+        jkrate = #{jkrate,jdbcType=DECIMAL},
+      </if>
+      <if test="hkmoney != null" >
+        hkmoney = #{hkmoney,jdbcType=INTEGER},
+      </if>
+      <if test="cgrate != null" >
+        cgrate = #{cgrate,jdbcType=DECIMAL},
+      </if>
+      <if test="skbankno != null" >
+        skbankno = #{skbankno,jdbcType=CHAR},
+      </if>
+      <if test="skname != null" >
+        skname = #{skname,jdbcType=CHAR},
+      </if>
+      <if test="skbank != null" >
+        skbank = #{skbank,jdbcType=CHAR},
+      </if>
+      <if test="jkcheck != null" >
+        jkcheck = #{jkcheck,jdbcType=SMALLINT},
+      </if>
+      <if test="cstimes != null" >
+        cstimes = #{cstimes,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="retype != null" >
+        retype = #{retype,jdbcType=INTEGER},
+      </if>
+      <if test="declare != null" >
+        detail = #{declare,jdbcType=VARCHAR},
+      </if>
+      <if test="gdate != null" >
+        gdate = #{gdate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.app.entity.Aidgold" >
+    update t_zjgj_aidgold
+    set mid = #{mid,jdbcType=INTEGER},
+      agentid = #{agentid,jdbcType=INTEGER},
+      jkmoney = #{jkmoney,jdbcType=INTEGER},
+      jkdate = #{jkdate,jdbcType=TIMESTAMP},
+      enddate = #{enddate,jdbcType=TIMESTAMP},
+      jkdays = #{jkdays,jdbcType=INTEGER},
+      jkrate = #{jkrate,jdbcType=DECIMAL},
+      hkmoney = #{hkmoney,jdbcType=INTEGER},
+      cgrate = #{cgrate,jdbcType=DECIMAL},
+      skbankno = #{skbankno,jdbcType=CHAR},
+      skname = #{skname,jdbcType=CHAR},
+      skbank = #{skbank,jdbcType=CHAR},
+      jkcheck = #{jkcheck,jdbcType=SMALLINT},
+      cstimes = #{cstimes,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      gdate = #{gdate,jdbcType=TIMESTAMP}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+</mapper>
