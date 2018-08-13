@@ -64,6 +64,11 @@
 		select mobile from t_zjgj_member where mid = #{mid}
 	</select>
 	
+	<!-- `t_zjgj_member` 根据手机查mid -->
+	<select id="selectMidByMobileFromMember" parameterType="String" resultType="Integer">
+		select mid from t_zjgj_member where mobile = #{mobile}
+	</select>
+	
 	<!-- `t_zjgj_member` 根据账号密码查对象 -->
 	<select id="selectMemberByUnameAndPass" resultType="Map">
 		select mid, username, userpass, Regdate from t_zjgj_member where username = #{username} and userpass = #{password}
@@ -236,15 +241,44 @@
 	</insert>
 	
 	<!-- t_zjgj_tx_reward 根据ordercode查询 -->
-	<select id="selectTXRewardByOrdercode" parameterType="String" resultType="Map">
+	<select id="selectTXRewardByOrdercode" parameterType="Map" resultType="Map">
 		SELECT tid, ordercode, reward, possn, mid, nick, mobile, role, posnum, rate, rdate, gdate 
 			FROM `t_zjgj_tx_reward`
 			<where>
 				<if test="ordercode != '' and ordercode != 'null' ">`ordercode` = #{ordercode}</if>
 				<if test="possn != '' and possn != 'null' ">and `possn` = #{possn}</if>
-				<if test=" 1 ==1 ">and `posnum` &lt; 200</if>
+				<if test="mobile != '' and mobile != 'null' ">and `mobile` = #{mobile}</if>
+				<if test="modeBegin != 0">and `posnum` between #{modeBegin} and #{modeEnd}</if>
+				<if test="startDate != '' and endDate != ''">and `rdate` between #{startDate} and #{endDate}</if>
+				<!-- <if test=" 1 ==1 ">and `posnum` &lt; 200</if> -->
 			</where>
-				ORDER BY `rdate` DESC LIMIT 0, 100; 
+				ORDER BY `rdate` DESC LIMIT #{page}, #{rows}; 
+	</select>
+	<select id="selectCountTXReward" parameterType="Map" resultType="int">
+		SELECT count(1) FROM `t_zjgj_tx_reward`
+			<where>
+				<if test="ordercode != '' and ordercode != 'null' ">`ordercode` = #{ordercode}</if>
+				<if test="possn != '' and possn != 'null' ">and `possn` = #{possn}</if>
+				<if test="mobile != '' and mobile != 'null' ">and `mobile` = #{mobile}</if>
+				<if test="modeBegin != 0">and `posnum` between #{modeBegin} and #{modeEnd}</if>
+				<if test="startDate != '' and endDate != ''">and `rdate` between #{startDate} and #{endDate}</if>
+				<!-- <if test=" 1 ==1 ">and `posnum` &lt; 200</if> -->
+			</where>
+	</select>
+	
+	<!-- 查询要导出的数据 -->
+	<select id="selectTXReward" parameterType="Map" resultType="Map">
+		SELECT tid, ordercode, reward, possn, mid, nick, mobile, role, posnum, rate, rdate, gdate 
+			FROM `t_zjgj_tx_reward`
+			<where>
+				<if test="ordercode != '' and ordercode != 'null' ">`ordercode` = #{ordercode}</if>
+				<if test="possn != '' and possn != 'null' ">and `possn` = #{possn}</if>
+				<if test="mobile != '' and mobile != 'null' ">and `mobile` = #{mobile}</if>
+				<if test="modeBegin != 0">and `posnum` between #{modeBegin} and #{modeEnd}</if>
+				<if test="startDate != '' and endDate != ''">and `rdate` between #{startDate} and #{endDate}</if>
+				<!-- <if test=" 1 ==1 ">and `posnum` &lt; 200</if> -->
+			</where>
+				ORDER BY `rdate` DESC LIMIT #{page}, #{rows}; 
 	</select>
 	
 	<!--  t_drp_tixian_apply  -->
@@ -275,8 +309,8 @@
 		</foreach> 
 	</select>
 	
-	<!-- 批量保存 t_drp_tixian_apply -->
-	<insert id="insertDrpTixianApply">
+	<!-- 批量保存 t_zjgj_tx -->
+	<insert id="insertZjgjTX">
 		insert  into `t_zjgj_tx` 
 		(`order_code`,`allocation_code`,`withdraw_code`,`mid`,
 		`money`,`dzmoney`,`source`,`period`,`status`, `rsp_code`,`rsp_msg`,
@@ -310,6 +344,211 @@
 		(`mid`, `mobile`, `marketid`, `market_group`, `market_param`, `begindate`, `enddate`, `remark`) VALUES 
 		(#{mid}, #{mobile}, #{marketid}, #{market_group}, #{market_param}, #{begindate}, #{enddate}, #{remark}); 
 	</insert>
+	
+	<!-- `t_zjgj_member_bank` 表 -->
+	<select id="selectMemberBank" parameterType="Map" resultType="Map" >
+		select mid, mobile, bank_open, account_name, account_number, isauth, gdate
+		from `t_zjgj_member_bank` 
+		<where>
+			<if test="userName != ''">`account_name` = #{userName}</if>
+			<if test="mobile != ''">and `mobile` = #{mobile}</if>
+		</where>
+		limit #{page}, #{rows}
+	</select>
+	
+	<!-- `t_zjgj_member_bank` 查询总数 -->
+	<select id="selectCountMemberBank" parameterType="Map" resultType="int" >
+		select count(1) from `t_zjgj_member_bank` 
+		<where>
+			<if test="userName != ''">`account_name` = #{userName}</if>
+			<if test="mobile != ''">and `mobile` = #{mobile}</if>
+		</where>
+	</select>
+	
+	<!--  -->
+	<update id="updateMemberBank" parameterType="Map">
+		update `t_zjgj_member_bank` set `bank_open` = #{bankName}, 
+		`account_number` = #{bankAccount}, `account_name` = #{userName}, `isauth` = #{isauth} where `mid` = #{mid};
+	</update>
+	
+	<!--  -->
+	<insert id="insertMemberBank" parameterType="Map">
+		insert into `t_zjgj_member_bank` (`mid`, `mobile`, `bank_open`, `account_name`, `account_number`, `isauth`)
+		values (#{mid}, #{mobile}, #{bankName}, #{userName}, #{bankAccount}, #{isauth});
+	</insert>
+	
+	<!-- `t_zjgj_member_bank` 通过mid查询总数 -->
+	<select id="selectCountMemberBankByMid" parameterType="int" resultType="int" >
+		select count(1) from `t_zjgj_member_bank` where `mid` = #{mid}
+	</select>
+	
+	<!-- t_zjgj_card 查询已实名的卡 -->
+	<select id="selectAutonymCardByMid" parameterType="int" resultType="String">
+		SELECT cardno FROM `t_zjgj_card` WHERE `mid` = #{mid} AND `ischeck` = '1'
+	</select>
+	
+	<!-- t_rc_t0 统计交易额 -->
+	<select id="selectSumPaymoney" parameterType="Map" resultType="BigDecimal">
+		select sum(paymoney) from `t_rc_t0` where merchantcode = #{mobile} and paydate > #{staTime} and posno in
+		<foreach collection="cards" index="index" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
+	
+	<!-- t_rc_t0 统计最大交易额 -->
+	<select id="selectMaxPaymoney" parameterType="Map" resultType="BigDecimal">
+		select max(paymoney) from `t_rc_t0` where merchantcode = #{mobile} and paydate > #{staTime} and posno in
+		<foreach collection="cards" index="index" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
+	
+	<!-- t_zjgj_aidgold 查询已成功借款数量 -->
+	<select id="selectCountAidgoldByMid" parameterType="int" resultType="int">
+		select count(1) from t_zjgj_aidgold where mid = #{mid} and jkcheck > 90
+	</select>
+	
+	<!-- `t_zjgj_aidgold_blacklist` 查看助力金黑名单 -->
+	<select id="selectCountBlackListByMid" parameterType="int" resultType="int">
+		select count(1) from `t_zjgj_aidgold_blacklist` where `mid` = #{mid}
+	</select>
+	
+	<!-- `t_app_news` selectNewsList -->
+	<select id="selectNewsList" parameterType="int" resultType="Map">
+		SELECT article_title, pic_url, content_url, cdate FROM `t_app_news` WHERE 
+		article_type = #{type} AND permission &lt;= #{permission} ORDER BY `cdate` DESC
+	</select>
+	
+	<!-- `t_ship_member` 列表 -->
+	<select id="selectShipMemberList" parameterType="Map" resultType="Map">
+		SELECT a.mid, mobile, nick, userrole, agent, regdate, gdate, agent_nick FROM 
+		(SELECT MID, mobile, nick, userrole, agent, regdate, gdate FROM `t_ship_member` 
+		<where>
+			<if test="mobile != '' ">`mobile` = #{mobile}</if>
+			<if test="uname != '' ">AND `nick` = #{uname}</if>
+		</where>
+		) as a
+		LEFT JOIN 
+		(SELECT MID, nick AS agent_nick FROM `t_ship_member`) AS b 
+		ON a.agent = b.mid
+		ORDER BY `regdate` DESC LIMIT #{page},#{rows}
+	</select>
+	<!-- `t_ship_member` 总数 -->
+	<select id="selectCountShipMember" parameterType="Map" resultType="int">
+		SELECT COUNT(1) FROM `t_ship_member` 
+		<where>
+			<if test="mobile != '' ">`mobile` = #{mobile}</if>
+			<if test="uname != '' ">AND `nick` = #{uname}</if>
+		</where>
+	</select>
+	
+	<!-- `t_ship_member` -->
+	<select id="selectShipMemberByMid" parameterType="int" resultType="Map">
+		SELECT mid,username ,mobile, nick, userrole, agent, regdate, gdate FROM
+		`t_ship_member` WHERE `mid` = #{mid}
+	</select>
+	
+	<!-- `t_ship_member` 更新userrole -->
+	<update id="updateUserroleByMidFromShipMember" parameterType="int">
+		UPDATE `t_ship_member` SET `userrole` = #{userrole} WHERE `mid` = #{mid}
+	</update>
+	
+	<!-- `t_ship_member`保存 -->
+	<insert id="insertShipOption" parameterType="Map" >
+		insert into `t_ship_option` (mid, mobile, nick, price, stype, sdate, remark, isreward) values
+		(#{mid}, #{mobile}, #{nick}, #{price}, #{stype}, #{sdate}, #{remark}, #{isreward})
+	</insert>
+	
+	<!-- `t_ship_option` 列表 -->
+	<select id="selectShipOptionList" parameterType="Map" resultType="Map">
+		SELECT tid, mid, mobile, nick, price, stype, isreward, possn, remark, sdate, gdate FROM `t_ship_option` 
+		<where>
+			<if test="mobile != '' ">`mobile` = #{mobile}</if>
+			<if test="uname != '' ">AND `nick` = #{uname}</if>
+			<if test="isreward !='' ">AND `isreward` = #{isreward}</if>
+		</where>
+		ORDER BY `sdate` DESC LIMIT #{page},#{rows}
+	</select>
+	
+	<!-- `t_ship_option` 总数 -->
+	<select id="selectCountShipOption" parameterType="Map" resultType="int">
+		SELECT COUNT(1) FROM `t_ship_option` 
+		<where>
+			<if test="mobile != '' ">`mobile` = #{mobile}</if>
+			<if test="uname != '' ">AND `nick` = #{uname}</if>
+			<if test="isreward !='' ">AND `isreward` = #{isreward}</if>
+		</where>
+	</select>
+	
+	<!-- `t_ship_option` 更新isreward -->
+	<update id="updateIsrewardByTidFromShipOption" parameterType="int">
+		UPDATE `t_ship_option` SET `isreward` = #{isreward} WHERE `tid` = #{tid}
+	</update>
+	
+	<!-- `t_ship_option`-->
+	<select id="selectShipOptionByTid" parameterType="int" resultType="Map">
+		SELECT tid, mid, mobile, nick, price, stype, isreward, possn, remark, sdate, gdate FROM `t_ship_option` 
+		where `tid` = #{tid}
+	</select>
+	
+	<!-- `t_app_email_bill_trash` 保存 已移除的卡 -->
+	<insert id="insertEmailCardTrash">
+		insert into `t_app_email_bill_trash` (`mid`, `bank_id`, `card_number`) 
+		values (#{mid}, #{bank}, #{card})
+	</insert>
+	
+	<!-- 删除 已移除的卡 -->
+	<delete id="deleteEmailCardTrash">
+		delete from `t_app_email_bill_trash` where `mid` = #{mid} and `bank_id` = #{bank} and `card_number` = #{card}
+	</delete>
+	
+	<!-- 移除的卡列表 -->
+	<select id="selectEmailCardTrashList" parameterType="int" resultType="Map">
+		select `mid`, `bank_id`, `card_number` from `t_app_email_bill_trash` where `mid` = #{mid}
+	</select>
+	
+	<!-- `t_ship_tixian` 列表 -->
+	<select id="selectShipTixianList" parameterType="Map" resultType="Map">
+		SELECT tid, mid, mobile, nick, money_tx, bank_user, bank_name, bank_number, cdate, status FROM `t_ship_tixian` 
+		<where>
+			<if test="mobile != '' ">AND `mobile` = #{mobile}</if>
+			<if test="uname != '' ">AND `nick` = #{uname}</if>
+			<if test="status != '' ">`status` = #{status}</if>
+			<if test="startDate != '' and endDate != ''">and `cdate` between #{startDate} and #{endDate}</if>
+		</where>
+		ORDER BY `cdate` DESC LIMIT #{page},#{rows}
+	</select>
+	
+	<!-- `t_ship_tixian` 总数 -->
+	<select id="selectCountShipTixian" parameterType="Map" resultType="int">
+		SELECT COUNT(1) FROM `t_ship_tixian` 
+		<where>
+			<if test="mobile != '' ">`mobile` = #{mobile}</if>
+			<if test="uname != '' ">AND `nick` = #{uname}</if>
+			<if test="status !='' ">AND `status` = #{status}</if>
+			<if test="startDate != '' and endDate != ''">and `cdate` between #{startDate} and #{endDate}</if>
+		</where>
+	</select>
+	
+	<!--  t_ship_tixian 提现审核 -->
+	<update id="updateStatusByTidsFromShipTixian">
+		update `t_ship_tixian` set `status` = #{status} where `tid` in
+		<foreach collection="tids" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</update>
+	
+	<!-- `t_ship_member_account` 将 freeze的钱转移到 tixian -->
+	<update id="moveFreezeToTixianFromMemberAccountByMids">
+		update `t_ship_member_account` set `tixian` = `tixian` + `freeze`, `freeze` = 0 where `mid` in 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</update>
+	
+	
+	
+	
 	
   
 </mapper>

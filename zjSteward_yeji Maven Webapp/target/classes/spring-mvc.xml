@@ -4,6 +4,7 @@
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans    
                         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd    
                         http://www.springframework.org/schema/context    
@@ -12,6 +13,7 @@
                         http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
                         http://www.springframework.org/schema/task
 						http://www.springframework.org/schema/task/spring-task-3.2.xsd
+						http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
                         ">
                 
     <!-- 开启注解--><!-- 这个加上会报错 -->
@@ -19,10 +21,13 @@
     <!-- <annotation-driven /> -->
 	
 	<!-- 自动扫描该包，使springmvc认为包下用了@controller注解的类是控制器 -->
-	<context:component-scan base-package="com.app.controller"></context:component-scan>
+	<context:component-scan base-package="com.app"></context:component-scan>
 	
 	<!-- 设置定时任务 -->
 	<task:annotation-driven/>
+	
+	<!-- 开启基于注解的aop功能  -->
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
 	
 	<!--避免IE执行AJAX时，返回JSON出现下载文件 -->
 	<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">

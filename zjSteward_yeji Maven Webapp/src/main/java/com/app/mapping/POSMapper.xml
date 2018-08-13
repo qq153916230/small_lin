@@ -56,6 +56,12 @@
 			#{item}    
 		</foreach>  
 	</update>
+	
+	<!-- 根据手机号查询 代理名下已激活的POS机 -->
+	<select id="selectExportAgentPosByMobile" parameterType="String" resultType="Map">
+		SELECT merchantname, merchantcode, possn, vip_mobile, vip_nick FROM `t_rc_pos_assign` WHERE 
+			`mobile` = #{mobile} AND merchantcode != 0 AND `merchantname` != ''
+	</select>
   
   
   

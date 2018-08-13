@@ -1,10 +1,19 @@
 package com.app.service.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +22,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.app.dao.POSDao;
 import com.app.service.POSService;
 import com.app.util.DataGrid;
+import com.app.util.WriteExcel;
+import com.app.util.zjgj.ZjUtils;
 @Service
-public class POSServiceImpl implements POSService {
+public class POSServiceImpl extends ZjUtils implements POSService {
 	
 	@Autowired
 	POSDao posDao;
@@ -79,5 +90,60 @@ public class POSServiceImpl implements POSService {
 		jsonObject.put("msg", "更新成功");
 		return jsonObject;
 	}
+
+	/** 根据代理商手机 导出 代理名下已激活的POS机 */
+	@Override
+	public JSON exportAgentPosByMobile(String mobile) {
+
+		List<Map<String, Object>> data = this.posDao.selectExportAgentPosByMobile(mobile);
+		
+		InputStream is = null;
+		OutputStream os = null;
+		String fileName = System.currentTimeMillis()+"";
+		String filePath = getContextRealPath(getRequest())+"\\download\\txreward\\"+fileName+".xls";
+		String serverPath = getContextPath(getRequest()) + "/download/txreward/"+fileName+".xls";
+		
+		try {
+			is = getExportAgentInputStream(data);
+			
+			os = new FileOutputStream(new File(filePath));
+			IOUtils.copy(is, os);
+			is.close();
+			os.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return statusMsgJson(1, serverPath);
+	}
+	
+	public InputStream getExportAgentInputStream(List<Map<String, Object>> list) throws Exception {
+		//merchantname, merchantcode, possn, vip_mobile, vip_nick
+		String[] title = new String[]{"序号","商户名","商户号","机身号","代理商","代理商手机"};//,"激活时间"
+		
+		List<Object[]> dataList = new ArrayList<Object[]>();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); /*HH:mm:ss*/
+		//System.out.println(list.toString()); 
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = list.get(i);
+			Object[] obj = new Object[title.length];
+			
+			obj[0] = i+1;
+			obj[1] = dealNullExcel(map.get("merchantname"));
+			obj[2] = dealNullExcel(map.get("merchantcode"));
+			obj[3] = dealNullExcel(map.get("possn"));
+			obj[4] = dealNullExcel(map.get("vip_nick"));
+			obj[5] = dealNullExcel(map.get("vip_mobile"));
+			
+			dataList.add(obj);
+		}
+		
+		WriteExcel excel = new WriteExcel(title, dataList);
+		InputStream inputStream;
+		inputStream = excel.export();
+		
+		return inputStream;
+	}
+	
+	
 
 }

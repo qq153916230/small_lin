@@ -1,5 +1,8 @@
 package com.app.service;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
@@ -116,8 +119,64 @@ public interface CommonService {
 	/** 保存 代理商报名参与活动 */
 	JSON posActivitySave(HttpServletRequest req);
 
+	/** 查看机具类型 */
+	JSON posSaleType(HttpServletRequest req);
+
 	/** 获取新颜邮箱账单 */
 	JSON xyEmailCardBills();
+
+	/** 查询memberBankList对象 */
+	List<Map<String, Object>> memberBankList(HttpServletRequest req);
+
+	DataGrid memberBankListPro(HttpServletRequest req);
+
+	/** 查看是否满足贷款条件 */
+	JSON aidgoldPrecheck(HttpServletRequest req);
+
+	/** 导出 `t_zjgj_tx_reward` */
+	JSON txRewardExport();
+
+	/** `t_zjgj_member_bank` 保存 */
+	JSON memberBankSave(HttpServletRequest req);
+
+	/** 查看服务器是否存在照片 */
+	JSON aidgoldCheckPic(HttpServletRequest req);
+
+	/** 查询公告，新闻文章 */
+	JSON newsList(HttpServletRequest req);
+
+	/** `t_ship_member` 列表 */
+	DataGrid shipMemberList();
+
+	/** 设置股东 */
+	JSON setShareholder(HttpServletRequest req);
+
+	/** `t_ship_option` 列表 */
+	DataGrid shipOptionList();
+
+	/** t_ship_option 财务确认到款 */
+	JSON shipConfirm();
+
+	/** 保存 已移除的卡 */
+	JSON xyEmailCardTrashSave();
+
+	/** 删除 已移除的卡 */
+	JSON xyEmailCardTrashDelete();
+
+	/** 移除的卡列表 */
+	JSON xyEmailCardTrashList();
+
+	/** `t_ship_tixian` 列表 */
+	DataGrid shipTixianList();
+
+	/** t_ship_tixian 提现审核 */
+	JSON shipTixianUpdateStatus();
+
+	/** 导出 `t_ship_tixian` */
+	JSON shipTixianExport();
+
+
+
 
 
 }

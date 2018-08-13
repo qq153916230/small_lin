@@ -1,5 +1,6 @@
 package com.app.dao;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,9 @@ public interface CommonDao {
 
 	/** `t_zjgj_member` 根据mid查手机 */
 	String selectMobileByMidFromMember(int mid);
+	
+	/** 根据mobile查询mid */
+	Integer selectMidByMobileFromMember(String mobile);
 
 	/** `t_zjgj_member` 根据账号密码查对象 */
 	Map<String, Object> selectMemberByUnameAndPass(@Param("username")String username, @Param("password")String password);
@@ -115,6 +119,23 @@ public interface CommonDao {
 	/** `t_zjgj_member_bank` */
 	Map<String, Object> selectMemberBankByMid(int mid);
 
+	/** `t_zjgj_member_bank` 查询询卡列表 */
+	List<Map<String, Object>> selectMemberBank(Map<String, Object> param);
+	
+	/** `t_zjgj_member_bank` 查询总数 */
+	int selectCountMemberBank(Map<String, Object> param);
+
+	/**  */
+	int selectCountMemberBankByMid(int mid);
+	
+	/**  */
+	void updateMemberBank(Map<String, Object> params);
+	
+	/**  */
+	void insertMemberBank(Map<String, Object> params);
+	
+
+
 	/** `wx_order` 添加  */
 	void insertWXOrder(Map<String, Object> map);
 
@@ -128,7 +149,12 @@ public interface CommonDao {
 	void insertEpayPayment(Map<String, Object> map);
 
 	/** t_zjgj_tx_reward 根据ordercode查询 */
-	List<Map<String, Object>> selectTXRewardByOrdercode(@Param("ordercode")String ordercode, @Param("possn")String possn);
+	List<Map<String, Object>> selectTXRewardByOrdercode(Map<String, Object> map);
+	/** t_zjgj_tx_reward 查询总数 */
+	int selectCountTXReward(Map<String, Object> map);	
+	
+	/** 查询要导出的数据 */
+	List<Map<String, Object>> selectTXReward(Map<String, Object> map);
 
 	/** t_drp_tixian_apply */
 	List<Map<String, Object>> selectTXApply_cft(Map<String, Object> param);
@@ -139,8 +165,8 @@ public interface CommonDao {
 	/**根据tid 查询t_drp_tixian_apply记录*/
 	List<Map<String, Object>> selectDrpTixianApplyStatusByTids(String[] tids);
 
-	/** 批量保存 t_drp_tixian_apply  */
-	int insertDrpTixianApply(List<Map<String, Object>> data);
+	/** 批量保存 t_zjgj_tx  */
+	int insertZjgjTX(List<Map<String, Object>> data);
 
 	/** `t_zjgj_subsidy_pos` 列表 */
 	List<Map<String, Object>> selectSubsidyPosList(Map<String, Object> param);
@@ -148,7 +174,76 @@ public interface CommonDao {
 	/** t_plat_market 保存 */
 	int insertPlatMarket(Map<String, Object> param);
 
+	/** t_zjgj_card 查询已实名的卡 */
+	List<String> selectAutonymCardByMid(int mid);
+
+	/** t_rc_t0 统计交易额 */
+	BigDecimal selectSumPaymoney(Map<String, Object> params);
 	
+	/** t_rc_t0 统计最大交易额 */
+	BigDecimal selectMaxPaymoney(Map<String, Object> params);
+
+	/** t_zjgj_aidgold 查询已成功借款数量 */
+	int selectCountAidgoldByMid(int mid);
+
+	/** `t_zjgj_aidgold_blacklist` 统计黑名单列表 */
+	int selectCountBlackListByMid(int mid);
+
+	/** `t_app_news` 获取新闻，公告 */
+	List<Map<String, Object>> selectNewsList(@Param("type") int type, @Param("permission") int permission);
+
+	/** `t_ship_member` 列表 */
+	List<Map<String, Object>> selectShipMemberList(Map<String, Object> map);
+
+	/** `t_ship_member` 总数 */
+	int selectCountShipMember(Map<String, Object> map);
+
+	/** `t_ship_member` */
+	Map<String, Object> selectShipMemberByMid(int mid);
+
+	/** `t_ship_member` 更新userrole */
+	int updateUserroleByMidFromShipMember(@Param("mid")int mid, @Param("userrole")int userrole);
+
+	/** `t_ship_member`保存 */
+	int insertShipOption(Map<String, Object> map);
+	
+	/** `t_ship_option` 列表 */
+	List<Map<String, Object>> selectShipOptionList(Map<String, Object> map);
+
+	/** `t_ship_option` 总数 */
+	int selectCountShipOption(Map<String, Object> map);
+	
+	/** `t_ship_option` 更新isreward */
+	int updateIsrewardByTidFromShipOption(@Param("tid")int tid, @Param("isreward")int isreward);
+	
+	/** `t_ship_option` */
+	Map<String, Object> selectShipOptionByTid(int tid);
+
+	/** `t_app_email_bill_trash` 保存 已移除的卡 */
+	void insertEmailCardTrash(@Param("mid")int mid, @Param("bank")int bank_id, @Param("card")String card_number);
+
+	/** 删除 已移除的卡 */
+	void deleteEmailCardTrash(@Param("mid")int mid, @Param("bank")int bank_id, @Param("card")String card_number);
+
+	/** 移除的卡列表 */
+	List<Map<String, Object>> selectEmailCardTrashList(int mid);
+
+	/** `t_ship_tixian` 列表 */
+	List<Map<String, Object>> selectShipTixianList(Map<String, Object> map);
+
+	/** `t_ship_提现` 统计 */
+	int selectCountShipTixian(Map<String, Object> map);
+
+	/** t_ship_tixian 提现审核 */
+	int updateStatusByTidsFromShipTixian(@Param("status") int status, @Param("tids") String[] tids);
+
+	/** `t_ship_member_account` 将 freeze的钱转移到 tixian */
+	int moveFreezeToTixianFromMemberAccountByMids(String[] mids);
+
+
+
+
+
 
 
 }

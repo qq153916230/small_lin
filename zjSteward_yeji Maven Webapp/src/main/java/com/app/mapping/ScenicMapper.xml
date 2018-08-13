@@ -166,6 +166,10 @@
   <select id="selectScenicBySid" parameterType="int" resultType="Map">
   	select sid, sname, tprice from `t_zjgj_scenic` where sid = #{sid}
   </select>
+  <!-- 查询绑定的人数  -->
+  <select id="selectCountRelativeByMid" parameterType="int" resultType="int">
+  	SELECT COUNT(1) FROM `t_zjgj_scenic_relative` WHERE MID = #{mid}
+  </select>
   
   
   

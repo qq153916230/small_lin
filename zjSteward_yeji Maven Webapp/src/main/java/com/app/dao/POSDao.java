@@ -16,7 +16,9 @@ public interface POSDao {
 
 	/**批量更新状态*/
 	void updateStatus(Map<String, Object> map); 
-	
+
+	/** 根据手机号查询 代理名下已激活的POS机 */
+	List<Map<String, Object>> selectExportAgentPosByMobile(String mobile);
 	
 	
     int deleteByPrimaryKey(String possn);
@@ -30,4 +32,5 @@ public interface POSDao {
     int updateByPrimaryKeySelective(POS record);
 
     int updateByPrimaryKey(POS record);
+
 }

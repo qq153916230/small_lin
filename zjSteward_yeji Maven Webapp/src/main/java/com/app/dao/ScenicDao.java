@@ -79,7 +79,9 @@ public interface ScenicDao {
 	
 	/** 获取景区 */
 	Map<String, Object> selectScenicBySid(int sid);
-	
+
+	/** 查询绑定的人数 */
+	int selectCountRelativeByMid(int mid);
 	
 	
     int deleteByPrimaryKey(Integer sid);
@@ -93,6 +95,7 @@ public interface ScenicDao {
     int updateByPrimaryKeySelective(Scenic record);
 
     int updateByPrimaryKey(Scenic record);
+
 
 
 

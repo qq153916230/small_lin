@@ -206,6 +206,26 @@ public class AppController {
 		return this.commonService.xyEmailCardBills();
 	}
 	
+	/** 保存 已移除的卡 */
+	@ResponseBody
+	@RequestMapping("xy/email/card/trash/save")
+	public JSON xyEmailCardTrashSave(){
+		return this.commonService.xyEmailCardTrashSave();
+	}
+	
+	/** 移除的卡列表 */
+	@ResponseBody
+	@RequestMapping("xy/email/card/trash/list")
+	public JSON xyEmailCardTrashList(){
+		return this.commonService.xyEmailCardTrashList();
+	}
+	
+	/** 删除 已移除的卡 */
+	@ResponseBody
+	@RequestMapping("xy/email/card/trash/delete")
+	public JSON xyEmailCardTrashDelete(){
+		return this.commonService.xyEmailCardTrashDelete();
+	}
 	
 	
 

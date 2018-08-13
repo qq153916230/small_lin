@@ -13,5 +13,8 @@ public interface POSService {
 	/**更新状态*/
 	JSON updateStatus(HttpServletRequest request);
 
+	/** 根据代理商手机 导出 代理名下已激活的POS机 */
+	JSON exportAgentPosByMobile(String mobile);
+
 
 }

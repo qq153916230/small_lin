@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.app.service.MemberAuthorService;
 import com.app.util.DataGrid;
+import com.app.util.zjgj.ZjUtils;
 
 @Controller
 @RequestMapping("memberAuthor")
@@ -31,5 +32,19 @@ public class MemberAuthorController {
 	public JSON selectByMid(HttpServletRequest request){
 		return this.memberAuthorService.selectByMid(request);
 	}
+	
+	/** 查找实名信息 */
+	@ResponseBody
+	@RequestMapping("detail")
+	public JSON detail(HttpServletRequest request){
+		JSON json = this.memberAuthorService.selectByMid(request);
+		int status = 1;
+		if (json == null) 
+			status = 0;
+		
+		return ZjUtils.statusMsgJsonObj(status, this.memberAuthorService.selectByMid(request));
+	}
+	
+	
 
 }

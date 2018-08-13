@@ -2,7 +2,6 @@ package com.app.controller;
 
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.app.dao.ParamDao;
 import com.app.dao.UserDao;
-import com.app.entity.Param;
 import com.app.entity.User;
 import com.app.util.MD5;
 import com.app.util.ReadHTMLFilePath;

@@ -64,6 +64,12 @@ public interface ScenicService {
 	/** 根据mid 获取票列表  */
 	JSON selectTicketByMid();
 
+	/** 添加亲属 */
+	JSON saveRelative(HttpServletRequest req);
+
+	/** 获取亲属 */
+	JSON findRelative(HttpServletRequest req);
+
 	
 	
 

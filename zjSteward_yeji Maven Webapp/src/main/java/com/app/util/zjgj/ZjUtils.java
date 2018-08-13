@@ -6,13 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,13 +25,12 @@ import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.app.util.CallUrlByGet;
 import com.app.util.DataGrid;
 
 public class ZjUtils {
 	
-	static String reqParam;		//请求参数
-	static DataGrid dg = new DataGrid();	//返回页面的数据
+	//static String reqParam;		//请求参数
+	//static DataGrid dg = new DataGrid();	//返回页面的数据
 	//static Map<String, Object> map = new HashMap<String, Object>();	//查询的map
 	
 	static Logger log4j = Logger.getLogger("zjUtils");	//com.app.util.zjgj.ZjUtils
@@ -56,15 +55,15 @@ public class ZjUtils {
 	
 	/** 返回空为 "" */
 	public static String getStr(String param){
-		reqParam = getReqParam(getRequest(), param);
+		String reqParam = getReqParam(getRequest(), param);
 		return reqParam == null ? "" : reqParam;
 	}
 	
 	/** null或"" 返回  0 */
 	public static int getInt(String param){
-		reqParam = getReqParam(getRequest(), param);
+		String reqParam = getReqParam(getRequest(), param);
 		int result = 0;
-		if ( reqParam != null && !"".equals(reqParam) ) {
+		if ( reqParam != null && !"".equals(reqParam) && !"null".equals(reqParam) ) {
 			result = Integer.parseInt(reqParam);
 		}
 		return result;
@@ -77,13 +76,13 @@ public class ZjUtils {
 	
 	/** 返回空为 "" */
 	public static String getStr(HttpServletRequest request, String param){
-		reqParam = getReqParam(request, param);
+		String reqParam = getReqParam(request, param);
 		return reqParam == null ? "" : reqParam;
 	}
 	
 	/** null或"" 返回  0 */
 	public static int getInt(HttpServletRequest request, String param){
-		reqParam = getReqParam(request, param);
+		String reqParam = getReqParam(request, param);
 		int result = 0;
 		if ( reqParam != null && !"".equals(reqParam) ) {
 			result = Integer.parseInt(reqParam);
@@ -92,7 +91,7 @@ public class ZjUtils {
 	}
 	
 	public static short getShort(HttpServletRequest request, String param){
-		reqParam = getReqParam(request, param);
+		String reqParam = getReqParam(request, param);
 		short result = 0;
 		if ( reqParam != null && !"".equals(reqParam) ) {
 			result = Short.parseShort(reqParam);
@@ -190,6 +189,17 @@ public class ZjUtils {
 		return callbackFunName + "(" + obj + ")";
 	}
 	
+	/**
+	 * list > 0 返回 1  否则返回 0
+	 * @return list.size() > 0 ? 1 : 0
+	 */
+	public static int getStatus(List list){
+		if (list != null) {
+			return list.size() > 0 ? 1 : 0;
+		}
+		return 0;
+	}
+	
 	
 	
 	public static String getLastSecond(String time, boolean isNull){
@@ -205,7 +215,7 @@ public class ZjUtils {
 	}
 	
 	public static DataGrid getDG(){
-		return dg;
+		return new DataGrid();
 	}
 	
 	public static Map<String, Object> getHashMap(){
@@ -273,7 +283,7 @@ public class ZjUtils {
 		return path;
 	}
 	
-	/**获取服务器 项目工程目录 E:\tomcat\tomcatZJ2Manager\bin */
+	/**获取服务器 项目工程目录 E:\tomcat\tomcatZJ2Manager\bin E:\\tomcat\\tomcatZJ2Manager\\webapps\\zjgj2tj\\ */
 	public static String getContextRealPath(HttpServletRequest request){
 		return request.getSession().getServletContext().getRealPath("");
 	}
@@ -334,10 +344,17 @@ public class ZjUtils {
 		return !isNotEmpty(str);
 	}
 	
+	/** 把空对象转成 "" 
+	 * return obj == null || "".equals((String)obj) ? " " : obj;
+	 */
+	public static Object dealNullExcel(Object obj){
+		return obj == null || "".equals(String.valueOf(obj)) ? " " : obj;
+	}
+	
 	public static void main(String[] args) throws UnsupportedEncodingException {
 		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) + 1);
-		System.out.println(calendar.getTime());
+		//calendar.set(Calendar.DATE, calendar.get(Calendar.DATE)-30);
+		System.out.println(calendar.DATE + " " + calendar.get(Calendar.DATE));
 	}
 }
 

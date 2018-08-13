@@ -132,6 +132,20 @@ public class ScenicController {
 		out.close();
 	}
 	
+	/** 添加亲属 */
+	@ResponseBody
+	@RequestMapping("relative/save")
+	public JSON saveRelative(HttpServletRequest req) {
+		return this.scenicService.saveRelative(req);
+	}
+	
+	/** 获取亲属 */
+	@ResponseBody
+	@RequestMapping("relative/find")
+	public JSON findRelative(HttpServletRequest req) {
+		return this.scenicService.findRelative(req);
+	}
+	
 	/** 充1万 */
 	@ResponseBody
 	@RequestMapping(value="resetBalance", method=RequestMethod.POST)

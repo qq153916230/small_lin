@@ -101,6 +101,11 @@ public class ScenicServiceImpl extends ZjUtils implements ScenicService {
 		int sid = getInt(request, "sid");	//景区id
 		int ImSupper = getInt(request, "ImSupper");
 		
+		int relativeNum = this.scenicDao.selectCountRelativeByMid(umid);
+		if (tNum > relativeNum) {
+			return JsonpData(callbackparam, 4, "请下载最新版APP购票");
+		}
+		
 		if (ImSupper != 1) {
 			Map<String, Object> map = getHashMap();
 			map.put("mid", umid);
@@ -266,12 +271,50 @@ public class ScenicServiceImpl extends ZjUtils implements ScenicService {
 		return JsonpData(callbackparam, 1, "添加成功");
 	}
 	
+	/** 添加亲属 */
+	@Override
+	public JSON saveRelative(HttpServletRequest req) {
+		int mid = getInt(req, "mid");
+		
+		int relNum = this.scenicDao.selectRelativeCount(mid);
+		
+		if (relNum >= 5) {
+			return statusMsgJson(0, "最多只可添加5个人");
+		}
+		
+		String name = getStr(req, "name");
+		String idno = getStr(req, "idno");
+		String mobile = getStr(req, "mobile");
+		
+		Map<String, Object> map = getHashMap();
+		map.put("mid", mid);
+		map.put("name", name);
+		map.put("idno", idno);
+		map.put("mobile", mobile);
+		this.scenicDao.insertRelative(map);
+		
+		return statusMsgJson(1, "添加成功");
+	}
+	
 	/**jsonp方式获取亲属*/
 	@Override
 	public String selectRelative(HttpServletRequest request) {
 		String callbackparam = getStr(request, "callbackparam");	//得到js函数名称  
 		int mid = getInt(request, "mid");
 		return JsonpDataObj(callbackparam, JSON.toJSON(this.scenicDao.selectRelative(mid)));
+	}
+	
+	/** 获取亲属 */
+	@Override
+	public JSON findRelative(HttpServletRequest req) {
+		int mid = getInt(req, "mid");
+		String mobile = getStr(req, "mobile");
+		
+		if (mid == 0 && !"".equals(mobile)) {
+			mid = this.commonDao.selectMidByMobileFromMember(mobile);
+		}
+		
+		return statusMsgJsonParseObj(1, JSON.toJSON(this.scenicDao.selectRelative(mid)));
 	}
 
 	/** 工作人员登入 */
@@ -432,6 +475,8 @@ public class ScenicServiceImpl extends ZjUtils implements ScenicService {
 	public JSON selectTicketByMid() {
 		return statusMsgJsonObj(1, JSON.toJSON(this.scenicDao.selectTicketList(getInt("mid"))));
 	}
+
+
 	
 
 

@@ -376,7 +376,7 @@ public class AidgoldServiceImpl extends ZjUtils implements AidgoldService {
 		return jsonObject;
 	}
 	
-	/**查询用户刷卡，额度信息*/
+	/** 查询用户刷卡，额度信息 */
 	@Override
 	public String selLogCon(HttpServletRequest request) {
 		String mid = getStr(request, "mid");
@@ -768,7 +768,9 @@ public class AidgoldServiceImpl extends ZjUtils implements AidgoldService {
 					tids.add( (int) map.get("tid") );
 				}
 			}
-			this.aidgoldDao.deleteBlacklistBatch(tids);
+			if (tids.size() > 0) {
+				this.aidgoldDao.deleteBlacklistBatch(tids);
+			}
 		}
 	}
 	

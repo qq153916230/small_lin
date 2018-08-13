@@ -553,6 +553,7 @@
 		case 50: return "待还款";	break;
 		case 51: return "还款中";	break;
 		case 52: return "还款失败";	break;
+		case 98: return "其他";	break;
 		case 99: return "已还清";	break;
 		default: return "<a href='javascript:;' onclick=getApplyResult("+row.mid+","+row.tid+") style='color:#1d953f;'>待审核</a>";
 		} 

@@ -1,8 +1,14 @@
 package com.app.service.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,6 +19,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +30,19 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.app.dao.AidgoldDao;
 import com.app.dao.CommonDao;
+import com.app.entity.daystatic;
 import com.app.service.CommonService;
 import com.app.util.CallUrlByGet;
 import com.app.util.CallUrlByPost;
 import com.app.util.DataGrid;
+import com.app.util.WriteExcel;
 import com.app.util.zjgj.ZjUrl;
 import com.app.util.zjgj.ZjUtils;
 
 @Service
 public class CommonServiceImpl extends ZjUtils implements CommonService {
+	
+	Logger log4j = Logger.getLogger("commonServiceImpl-aidgold");
 	
 	@Autowired
 	CommonDao commonDao;
@@ -310,30 +322,11 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 	public JSON getMemberServerList() {
 		try {
 			int mid = getInt("mid");
+			int version = getInt("new_version");	// 1为新版本
 			
-			Map<String, Object> member = this.commonDao.selectMemberByMid(mid);
-			
-			int rserRole = 0;
-			if (member != null) {
-				rserRole = (int) member.get("userrole");
-			}
-			
-			if (rserRole == 1) {	//	vip用户
-				mid = -2;
-			} else if (rserRole == 2) {	//代理商
-				mid = -3;
-			} else if (rserRole == 0) {			//普通用户
-				mid = 0;
-				String mobile = (String) member.get("mobile");
-				if (mobile != null) {
-					int i = this.commonDao.selectCountPos(mobile);
-					//int i = this.commonDao.selectCountPosAssign(mobile);
-					if (i > 0) {
-						mid = -2;
-					}
-				}
-			} else {
-				mid = -1;
+			mid = dealMid(mid);	//判断用户类型
+			if (version == 1) {
+				mid -= 4;
 			}
 			
 			return statusMsgJsonObj(1, this.commonDao.selectServerListByMid(mid));
@@ -341,6 +334,40 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 			return statusMsgJson(2, "请求有误");
 		}
 	}
+	
+	/**
+	 * 判断用户类型
+	 * @return 0:普通用户 -1:苹果测试账号 -2:vip用户 -3:代理商
+	 */
+	private int dealMid(int mid){
+		Map<String, Object> member = this.commonDao.selectMemberByMid(mid);
+		
+		int rserRole = 0;
+		if (member != null) {
+			rserRole = (int) member.get("userrole");
+		}
+		
+		if (rserRole == 1) {	//	vip用户
+			mid = -2;
+		} else if (rserRole == 2) {	//代理商
+			mid = -3;
+		} else if (rserRole == 0) {			//普通用户
+			mid = 0;
+			String mobile = (String) member.get("mobile");
+			if (mobile != null) {
+				int i = this.commonDao.selectCountPos(mobile);
+				//int i = this.commonDao.selectCountPosAssign(mobile);
+				if (i > 0) {
+					mid = -2;
+				}
+			}
+		} else {
+			mid = -1;	//苹果测试账号
+		}
+		
+		return mid;
+	}
+	
 
 	
 	/** 查看该卡是否是新卡 */
@@ -549,16 +576,126 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 	/** 根据ordercode查询 */
 	@Override
 	public DataGrid txRewardDetail() {
+		
+		int page = getPages("page");
+		int rows = getInt("rows");
+		
 		String possn = getStr("possn");
 		String ordercode = getStr("ordercode");
+		String mobile = getStr("mobile");
+		int modeBegin = getInt("mode");
+		int modeEnd = modeBegin + 99;
+		
+		String startDate = getStr("startDate");
+		String endDate = getStr("endDate");
+		if (!"".equals(endDate)) {
+			endDate += " 23:59:59.999";
+		}
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("possn", possn);
+		map.put("ordercode", ordercode);
+		map.put("mobile", mobile);
+		map.put("modeBegin", modeBegin);
+		map.put("modeEnd", modeEnd);
+		map.put("startDate", startDate);
+		map.put("endDate", endDate);
+		map.put("page", page);
+		map.put("rows", rows);
 		
 		DataGrid dg = new DataGrid();
 		List<Map<String, Object>> list = 
-				this.commonDao.selectTXRewardByOrdercode(ordercode, possn);
+				this.commonDao.selectTXRewardByOrdercode(map);
 		dg.setRows(list);
-		dg.setTotal((long) list.size());
+		dg.setTotal((long) this.commonDao.selectCountTXReward(map));
 		return dg;
 	}
+	
+
+	/** 导出 `t_zjgj_tx_reward` */
+	@Override
+	public JSON txRewardExport() {
+
+		int page = getPages("page");
+		int rows = getInt("rows");
+		
+		String possn = getStr("possn");
+		String ordercode = getStr("ordercode");
+		String mobile = getStr("mobile");
+		int modeBegin = getInt("mode");
+		int modeEnd = modeBegin + 99;
+		
+		String startDate = getStr("startDate");
+		String endDate = getStr("endDate");
+		if (!"".equals(endDate)) {
+			endDate += " 23:59:59";
+		}
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("possn", possn);
+		map.put("ordercode", ordercode);
+		map.put("mobile", mobile);
+		map.put("modeBegin", modeBegin);
+		map.put("modeEnd", modeEnd);
+		map.put("startDate", startDate);
+		map.put("endDate", endDate);
+		map.put("page", page);
+		map.put("rows", rows);
+		
+		List<Map<String, Object>> data = this.commonDao.selectTXReward(map);
+		
+		InputStream is = null;
+		OutputStream os = null;
+		String fileName = System.currentTimeMillis()+"";
+		String filePath = "E:\\tomcat\\tomcatZJ2Manager\\webapps\\zjgj2tj\\download\\txreward\\"+fileName+".xls";
+		String serverPath = getContextPath(getRequest()) + "download/txreward/"+fileName+".xls";
+		
+		try {
+			is = getInputStream(data);
+			
+			os = new FileOutputStream(new File(filePath));
+			IOUtils.copy(is, os);
+			is.close();
+			os.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return statusMsgJson(1, serverPath);
+	}
+	
+	public InputStream getInputStream(List<Map<String, Object>> list) throws Exception {
+		String[] title = new String[]{"tid","提现订单号","金额","机具号","用户编号",
+				"姓名","手机","用户类型","提现类型", "费率", "创建时间", "更新时间"};
+		
+		List<Object[]> dataList = new ArrayList<Object[]>();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); /*HH:mm:ss*/
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = list.get(i);
+			Object[] obj = new Object[title.length];
+			
+			obj[0] = map.get("tid");
+			obj[1] = map.get("ordercode");
+			obj[2] = map.get("reward");
+			obj[3] = map.get("possn");
+			obj[4] = map.get("mid");
+			obj[5] = map.get("nick");
+			obj[6] = map.get("mobile");
+			obj[7] = map.get("role");
+			obj[8] = map.get("posnum");
+			obj[9] = map.get("rate");
+			obj[10] = map.get("rdate");
+			obj[11] = map.get("gdate");
+			
+			dataList.add(obj);
+		}
+		
+		WriteExcel excel = new WriteExcel(title, dataList);
+		InputStream inputStream;
+		inputStream = excel.export();
+		
+		return inputStream;
+	}
+
 	
 	/** 财富通提现申请列表 */
 	@Override
@@ -609,7 +746,7 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 				map.put("txtype", "300");				
 			}
 			
-			this.commonDao.insertDrpTixianApply(data);
+			this.commonDao.insertZjgjTX(data);	//批量保存 t_zjgj_tx
 			
 			return statusMsgJson(1, "处理成功");
 		} else {
@@ -692,6 +829,490 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 		}
 		
 	}
+
+	@Override
+	public List<Map<String, Object>> memberBankList(HttpServletRequest req) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("page", getInt(req, "offset"));
+		param.put("rows", getInt(req, "limit"));
+		return this.commonDao.selectMemberBank(param);
+	}
+
+	@Override
+	public DataGrid memberBankListPro(HttpServletRequest req) {
+		
+		String userName = getStr(req, "userName");
+		String mobile = getStr(req, "mobile");
+		int page = getPages("page");
+		int rows = getInt(req, "rows");
+		
+		Map<String, Object> params = new HashMap<>();
+		params.put("userName", userName);
+		params.put("mobile", mobile);
+		params.put("page", page);
+		params.put("rows", rows);
+		
+		DataGrid dg = new DataGrid();
+		dg.setRows(this.commonDao.selectMemberBank(params));
+		dg.setTotal((long) this.commonDao.selectCountMemberBank(params));
+		return dg;
+	}
+	
+
+	@Override
+	public JSON memberBankSave(HttpServletRequest req) {
+		
+		int bankSaveType = getInt(req, "bankSaveType");	// 0保存， 1更新
+		String mobile = getStr(req, "mobile");
+		String bankAccount = getStr(req, "bankAccount");
+		String bankName = getStr(req, "bankName");
+		String userName = getStr(req, "userName");
+		
+		Integer mid = this.commonDao.selectMidByMobileFromMember(mobile);
+		
+		if (mid == null || mid <= 0) {
+			return statusMsgJson(0, "用户不存在");
+		}
+		
+		int memberBankCount = this.commonDao.selectCountMemberBankByMid(mid);
+		
+		Map<String, Object> params = new HashMap<>();
+		params.put("mid", mid);
+		params.put("mobile", mobile);
+		params.put("bankAccount", bankAccount);
+		params.put("bankName", bankName);
+		params.put("userName", userName);
+		params.put("isauth", 0);
+		
+		if (bankSaveType == 1) {
+			if (memberBankCount == 1) {
+				this.commonDao.updateMemberBank(params);
+			} else {
+				return statusMsgJson(0, "查询到多条记录");
+			}
+		} else if(bankSaveType == 0) {
+			if (memberBankCount == 0) {
+				//params.put("userName", this.commonDao.selectMemberByMid(mid).get("nick"));
+				this.commonDao.insertMemberBank(params);
+			} else {
+				return statusMsgJson(0, "已存在记录，不可保存");
+			}
+		} else {
+			return statusMsgJson(0, "未知保存类型（bankSaveType）");
+		}
+		
+		return statusMsgJson(1, "已保存");
+	}
+
+	
+	/** 查看是否满足贷款条件 */
+	@Override
+	public JSON aidgoldPrecheck(HttpServletRequest req) {
+		int mid = getInt(req, "mid");
+		String type = getStr(req, "type");
+		String sys = getStr(req, "sys");
+		
+		if (!"zlj".equals(type) && !"tyd".equals(type)) {
+			log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 类型有误  --%s", mid, type, sys));
+			return statusMsgJson(0, "类型有误");
+		}
+		
+		if (mid == 620 || mid == 1548) {
+			log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 测试账号  --%s", mid, type, sys));
+			return statusMsgJson(1, "测试账号");
+		}
+		
+		int blackList = this.commonDao.selectCountBlackListByMid(mid);	//查询是否在助力金黑名单
+		if (blackList > 0) {
+			return statusMsgJson(0, "贷款受限，请联系客服！");
+		}
+		
+		int tradeMoneyLimit = 0;	//体验贷需满足交易1W
+		int countAidgold = this.commonDao.selectCountAidgoldByMid(mid);	//查询是否成功借过款
+		
+		if ("zlj".equals(type)) {
+			if (countAidgold == 0) {
+				log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 首次贷款仅可申请体验贷  --%s", mid, type, sys));
+				return statusMsgJson(0, "首次使用仅可申请体验贷");
+			}
+			tradeMoneyLimit = 50000;	//助力金需满足交易5W
+		} else {
+			if (countAidgold != 0) {
+				log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 体验贷仅可申请一次  --%s", mid, type, sys));
+				return statusMsgJson(0, "您已享受过体验贷服务，如需再次使用，请选择我要借款");
+			}
+			tradeMoneyLimit = 10000; //体验贷需满足交易1W
+		}
+		
+		String mobile = this.commonDao.selectMobileByMidFromMember(mid);
+		
+		List<String> cards = this.commonDao.selectAutonymCardByMid(mid);	//查询已实名的卡
+		int cardNum = cards.size();
+		if (cardNum == 0) {
+			log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 本人卡：%s张   --%s",
+					mid, type, cardNum, sys));
+			return statusMsgJson(0, "您未认证信用卡，点击下方认证本人信用卡");
+		}
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - 30);	//一个月前
+		Date staTime = calendar.getTime();
+		
+		Map<String, Object> params = new HashMap<>();
+		params.put("mobile", mobile);
+		params.put("staTime", staTime);
+		params.put("cards", cards);
+		
+		BigDecimal maxTrade = this.commonDao.selectMaxPaymoney(params);	//获取一个月内最大交易额
+		if ("tyd".equals(type)) {
+			if (maxTrade == null || maxTrade.compareTo(new BigDecimal(5000)) == -1) {
+				log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 本人卡：%s张 最大交易：%s  --%s",
+						mid, type, cardNum, maxTrade, sys));
+				return statusMsgJson(0, "体验贷需要最近一个月有一笔交易超过5000元");
+			}
+		}
+		
+		BigDecimal sumTrade = this.commonDao.selectSumPaymoney(params);	//统计一个月内交易额
+		if (sumTrade == null || sumTrade.compareTo(new BigDecimal(tradeMoneyLimit)) == -1) {
+			log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 本人卡：%s张 总交易：%s 最大交易：%s  --%s",
+					mid, type, cardNum, sumTrade, maxTrade, sys));
+			return statusMsgJson(0, String.format("借款需满足最近一个月总交易金额超过%s元", tradeMoneyLimit));
+		}
+		
+		log4j.info(String.format("【助力金预检】用户mid：%s 申请类型：%s 本人卡：%s张 总交易：%s 最大交易：%s  --%s",
+				mid, type, cardNum, sumTrade, maxTrade, sys));
+		return statusMsgJson(1, "满足贷款条件");
+	}
+
+	/** 查看服务器是否存在照片 */
+	@Override
+	public JSON aidgoldCheckPic(HttpServletRequest req) {
+		String mobile = getStr(req, "mobile");
+		String path = getContextRealPath(req) + "/uploadFile/idPicture/" + mobile;
+		File file;
+		for (int i = 1; i <= 3; i++) {
+			String filePath = path + "/" + i + ".jpg" ;
+			file = new File(filePath);
+			if (!file.exists()) {
+				return statusMsgJson(0, mobile+" "+ i + ".jpg不存在");
+			}
+		}
+		return statusMsgJson(1, "身份证照片已上传");
+	}
+	/** 查询公告，新闻文章 */
+	@Override
+	public JSON newsList(HttpServletRequest req) {
+		int mid = getInt(req, "mid");
+		int type = getInt(req, "type");
+		
+		if (mid == 0 || type == 0) {
+			return statusMsgJson(0,"参数不正确");
+		}
+		
+		mid = dealMid(mid);	//判断用户类型
+		
+		int permission = 1;	//权限
+		if (mid == -2) {
+			permission = 2;
+		} else if (mid == -3) {
+			permission = 3;
+		}
+		
+		int status = 0;
+		List<Map<String, Object>> news = this.commonDao.selectNewsList(type, permission);
+		
+		if (type == 2) {
+			List<Map<String, Object>> alertPic = this.commonDao.selectNewsList(1, permission);
+			JSONObject json = new JSONObject();
+			
+			json.put("notice", news);
+			json.put("pic", alertPic);
+			return statusMsgJsonObj(1, json);
+		}
+		
+		if (news != null && news.size() > 0) {
+			status = 1;
+		}
+		
+		return statusMsgJsonObj(status, news);
+	}
+	
+	/** `t_ship_member` 列表 */
+	@Override
+	public DataGrid shipMemberList() {
+
+		int page = getPages("page");
+		int rows = getInt("rows");
+		
+		String uname = getStr("uname");
+		String mobile = getStr("mobile");
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("uname", uname);
+		map.put("mobile", mobile);
+		map.put("page", page);
+		map.put("rows", rows);
+		
+		DataGrid dg = new DataGrid();
+		List<Map<String, Object>> list = 
+				this.commonDao.selectShipMemberList(map);
+		dg.setRows(list);
+		dg.setTotal((long) this.commonDao.selectCountShipMember(map));
+		return dg;
+	}
+	
+	/** 设置股东 */
+	@Transactional
+	public JSON setShareholder(HttpServletRequest req){
+		int mid = getInt(req, "mid");
+		
+		/** 查询是否是新用户 userrole = 0 */
+		Map<String, Object> member = this.commonDao.selectShipMemberByMid(mid);
+		if (member == null) 
+			return statusMsgJson(0, "用户不存在");
+		
+		int userrole = (int)member.get("userrole");
+		if (userrole == 5 || userrole == 9) 
+			return statusMsgJson(0, "该用户已经是股东了");
+		
+		/** 修改状态 */
+		int userrole2 = 5;
+		int success = this.commonDao.updateUserroleByMidFromShipMember(mid,userrole2);
+		log(String.format("【设置股东】mid： %s 更新userrole： %s -> %s", mid, userrole, userrole2));
+		
+		/** 保存option */
+		if (success > 0) {
+			Map<String, Object> option = new HashMap<>();
+			option.put("mid", mid);
+			option.put("mobile", member.get("mobile"));
+			option.put("nick", member.get("nick"));
+			option.put("price", 50000);
+			option.put("stype", 6);
+			option.put("sdate", new Date());
+			option.put("remark", "股东款50000");
+			option.put("isreward", 9);
+			
+			this.commonDao.insertShipOption(option);
+			log(String.format("【设置股东】mid： %s 保存option完成：%s",mid ,option.toString()));
+		}
+		
+		return statusMsgJson(1, "设置成功");
+	}
+
+	/** `t_ship_option` 列表 */
+	@Override
+	public DataGrid shipOptionList() {
+
+		int page = getPages("page");
+		int rows = getInt("rows");
+		
+		String uname = getStr("uname");
+		String mobile = getStr("mobile");
+		int isreward = getInt("isreward");
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("uname", uname);
+		map.put("mobile", mobile);
+		map.put("isreward", isreward);
+		map.put("page", page);
+		map.put("rows", rows);
+		
+		DataGrid dg = new DataGrid();
+		List<Map<String, Object>> list = 
+				this.commonDao.selectShipOptionList(map);
+		dg.setRows(list);
+		dg.setTotal((long) this.commonDao.selectCountShipOption(map));
+		return dg;
+	}
+	
+	/** t_ship_option 财务确认到款 */
+	@Override
+	public JSON shipConfirm() {
+		int tid = getInt("tid");
+		
+		/** 查询用户 isreward = 0 */
+		Map<String, Object> option = this.commonDao.selectShipOptionByTid(tid);
+		if (option == null) 
+			return statusMsgJson(0, "没有该记录");
+		
+		int isreward = (int)option.get("isreward");
+		if (isreward != 9) 
+			return statusMsgJson(0, "该记录已确认过了");
+		
+		/** 修改状态 */
+		int isreward2 = 0;
+		int success = this.commonDao.updateIsrewardByTidFromShipOption(tid, isreward2);
+		log(String.format("【财务确认股东款】tid： %s 更新isreward： %s -> %s", tid, isreward, isreward2));
+		
+		return statusMsgJson(1, "确认成功");
+	}
+	
+	/** 保存 已移除的卡 */
+	@Override
+	public JSON xyEmailCardTrashSave() {
+		int mid = getInt("mid");
+		int bank_id = getInt("bank_id");
+		String card_number = getStr("card_number");
+		this.commonDao.insertEmailCardTrash(mid, bank_id, card_number);
+		return statusMsgJson(1, "已转移到回收箱");
+	}
+	
+	/** 删除 已移除的卡 */
+	@Override
+	public JSON xyEmailCardTrashDelete() {
+		int mid = getInt("mid");
+		int bank_id = getInt("bank_id");
+		String card_number = getStr("card_number");
+		this.commonDao.deleteEmailCardTrash(mid, bank_id, card_number);
+		return statusMsgJson(1, "已恢复");
+	}
+	
+	/** 移除的卡列表 */
+	@Override
+	public JSON xyEmailCardTrashList() {
+		List<Map<String, Object>> card = this.commonDao.selectEmailCardTrashList(getInt("mid"));
+		return statusMsgJsonObj(getStatus(card), card);
+	}
+
+	/** `t_ship_tixian` 列表 */
+	@Override
+	public DataGrid shipTixianList() {
+
+		int page = getPages("page");
+		int rows = getInt("rows");
+		
+		String uname = getStr("uname");
+		String mobile = getStr("mobile");
+		String status = getStr("status");
+		
+		String startDate = getStr("startDate");
+		String endDate = getStr("endDate");
+		if (!"".equals(endDate)) {
+			endDate += " 23:59:59.999";
+		}
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("uname", uname);
+		map.put("mobile", mobile);
+		map.put("status", status);
+		map.put("startDate", startDate);
+		map.put("endDate", endDate);
+		map.put("page", page);
+		map.put("rows", rows);
+		
+		DataGrid dg = new DataGrid();
+		dg.setRows(this.commonDao.selectShipTixianList(map));
+		dg.setTotal((long) this.commonDao.selectCountShipTixian(map));
+		return dg;
+	}
+
+	/** t_ship_tixian 提现审核 */
+	@Override
+	@Transactional
+	public JSON shipTixianUpdateStatus() {
+		
+		int status = getInt("status");
+		String tidStr = getStr("tids");
+		
+		if (status == 0 || tidStr.length() == 0) {
+			return statusMsgJson(0, "参数有误");
+		}
+		
+		String[] tids = tidStr.split(",");
+		
+		int res = this.commonDao.updateStatusByTidsFromShipTixian(status, tids);
+		
+		//已放款 修改用户额度
+		if (status == 3) {
+			String[] mids = getStr("mids").split(",");
+			this.commonDao.moveFreezeToTixianFromMemberAccountByMids(mids);
+		}
+		
+		return statusMsgJson(1, String.format("成功更新 %s 条记录", res));
+	}
+	
+	/** 导出 `t_ship_tixian` */
+	@Override
+	public JSON shipTixianExport() {
+
+		String uname = getStr("uname");
+		String mobile = getStr("mobile");
+		String status = getStr("status");
+		
+		String startDate = getStr("startDate");
+		String endDate = getStr("endDate");
+		if (!"".equals(endDate)) {
+			endDate += " 23:59:59.999";
+		}
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("uname", uname);
+		map.put("mobile", mobile);
+		map.put("status", status);
+		map.put("startDate", startDate);
+		map.put("endDate", endDate);
+		map.put("page", 0);
+		map.put("rows", 1000);
+		
+		List<Map<String, Object>> data = this.commonDao.selectShipTixianList(map);
+		
+		InputStream is = null;
+		OutputStream os = null;
+		String fileName = System.currentTimeMillis()+"";
+		String filePath = "E:\\tomcat\\tomcatZJ2Manager\\webapps\\zjgj2tj\\download\\txreward\\"+fileName+".xls";
+		String serverPath = getContextPath(getRequest()) + "download/txreward/"+fileName+".xls";
+		
+		try {
+			is = shipTixianExport(data);
+			
+			os = new FileOutputStream(new File(filePath));
+			IOUtils.copy(is, os);
+			is.close();
+			os.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return statusMsgJson(1, serverPath);
+	}
+	
+	public InputStream shipTixianExport(List<Map<String, Object>> list) throws Exception {
+		String[] title = new String[]{"用户编号","申请人","手机","提现金额","收款人",
+				"收款行","收款卡号","申请日期"};
+		
+		List<Object[]> dataList = new ArrayList<Object[]>();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); /*HH:mm:ss*/
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = list.get(i);
+			Object[] obj = new Object[title.length];
+			
+			obj[0] = dealNullExcel(map.get("mid"));
+			obj[1] = dealNullExcel(map.get("nick"));
+			obj[2] = dealNullExcel(map.get("mobile"));
+			obj[3] = dealNullExcel(map.get("money_tx"));
+			obj[4] = dealNullExcel(map.get("bank_user"));
+			obj[5] = dealNullExcel(map.get("bank_name"));
+			obj[6] = dealNullExcel(map.get("bank_number"));
+			obj[7] = dealNullExcel(map.get("cdate"));
+			
+			dataList.add(obj);
+		}
+		
+		WriteExcel excel = new WriteExcel(title, dataList);
+		InputStream inputStream;
+		inputStream = excel.export();
+		
+		return inputStream;
+	}
+
+	
+	// TODO 
+
+
+
+
+	
+	
+	
 
 
 
@@ -1346,19 +1967,40 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 		if (isNotEmpty(jsonStr)) {
 			jsonObject = JSONObject.parseObject(jsonStr);
 			
-			if ((boolean) jsonObject.get("success")) {	//返回结果是true
+			if ((boolean) jsonObject.get("success") && jsonObject.get("data") != null) {	//返回结果是true
 				JSONObject data = jsonObject.getJSONObject("data");
 				
 				int ind = (int)data.get("total_size");	//所有账单数
 				if ( ind > 0 ) {
 					JSONArray originalJsonArray = data.getJSONArray("bills");	//原账单数组
 					
+					//获取被移除到垃圾箱的卡
+					List<Map<String, Object>> trashCards = this.commonDao.selectEmailCardTrashList(getInt("mid"));
+					
 					JSONArray dataArr = new JSONArray();	//重组账单
+					int size;	//重组账单数
 					
 					JSONObject obj;	//原始每期账单
 					JSONObject json_card = new JSONObject();
 					for (Object originalJson : originalJsonArray) {
 						obj = (JSONObject) originalJson;
+						
+						//移除 被删除的订单
+						if (trashCards != null && trashCards.size() > 0) {
+							Map<String, Object> trashCard = null;
+							boolean existTrash = false;	//是否存在垃圾箱
+							for (int i = 0; i < trashCards.size(); i++) {
+								trashCard = trashCards.get(i);
+								if ((int)trashCard.get("bank_id") == obj.getInteger("bank_id") 
+										&& obj.getString("card_number").equals((String)trashCard.get("card_number"))) {
+									existTrash = true;	//匹配到垃圾箱
+									break;
+								}
+							}
+							if (existTrash) {
+								continue;
+							}
+						}
 						
 						JSONObject billObj = new JSONObject();	//每期账单对象
 						billObj.put("bill_id", obj.get("bill_id"));		//账单标识
@@ -1369,18 +2011,21 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 						//billObj.put("", );
 						//cardObj = obj.
 						if (!dataArr.isEmpty()) {
-							for (int i = 0; i < dataArr.size(); i++) {
+							size = dataArr.size();
+							for (int i = 0; i < size; i++) {
 								json_card = dataArr.getJSONObject(i);
-								if (json_card.getInteger("bank_id") != obj.getInteger("bank_id") ||
-										!json_card.getString("card_number").equals(obj.getString("card_number"))) {
-									//遍历的账单是新卡
-									dealNewCard(billObj, obj, dataArr);
-								} else {
+								if (json_card.getInteger("bank_id") == obj.getInteger("bank_id") &&
+										json_card.getString("card_number").equals(obj.getString("card_number"))) {
 									//遍历的账单已存在卡
 									JSONArray billArr = json_card.getJSONArray("bills"); 
 									billArr.add(billObj);
+									break;
+								} else {
+									if (i == size - 1) {
+										//遍历的账单是新卡
+										dealNewCard(billObj, obj, dataArr);
+									}
 								}
-								break;
 							}
 						} else {
 							//创建第一张卡
@@ -1419,11 +2064,41 @@ public class CommonServiceImpl extends ZjUtils implements CommonService {
 		//添加卡到最终数组（返回到页面的数组）
 		dataArr.add(cardObj);
 	}
+	
+	
+
 
 	public static void main(String[] args) {
 		String jsonstr = "{\"success\":true,\"data\":{\"total_size\":31,\"size\":31,\"bills\":[{\"bill_id\":\"6101408640350273076_179921751\",\"original\":\"1\",\"bank_id\":1,\"bill_start_date\":\"1900-01-01\",\"bill_date\":\"2018-06-05\",\"name_on_card\":\"noname\",\"card_no\":null,\"card_number\":\"****\",\"payment_due_date\":\"2018-06-23\",\"credit_limit\":0.00,\"usd_credit_limit\":0.00,\"new_balance\":6467.97,\"usd_new_balance\":0.00,\"min_payment\":\"1048.26\",\"usd_min_payment\":0.00,\"past_due_amount\":0.00,\"usd_past_due_amount\":0.00,\"cash_limit\":0.00,\"usd_cash_limit\":0.00,\"cash_amount\":0.00,\"usd_cash_amount\":0.00,\"last_balance\":0.00,\"usd_last_balance\":0.00,\"last_payment\":0.00,\"usd_last_payment\":0.00,\"new_charges\":0.00,\"usd_new_charges\":0.00,\"adjustment\":0.00,\"usd_adjustment\":0.00,\"interest\":0.00,\"usdInterest\":null,\"create_time\":\"2018-06-07 11:22:16\",\"currency_type\":1,\"email_id\":\"6101408640350273076\",\"failure_point\":0,\"feature_point\":0,\"feature_point_add\":0,\"voucher_balance\":0.00,\"voucher_valid_date\":\"1900-01-01\",\"point\":0,\"point_add\":0,\"point_adjust\":0,\"point_lose_date\":\"2018-06-07\",\"point_reward\":0,\"point_travel\":0,\"point_used\":0,\"point_valid_date\":\"1900-01-01\",\"point_valid_date2\":\"2018-06-07\",\"point_valid_date3\":\"2018-06-07\",\"point_valid_until\":0,\"point_valid_until2\":0,\"point_valid_until3\":0,\"last_point\":0,\"last_modify_time\":\"2018-06-07 11:22:16\",\"mail_id\":\"6101408640350273076_193366563\",\"return_amount\":null,\"status\":0},{\"bill_id\":\"6101408640350273076_171906148\",\"original\":\"1\",\"bank_id\":1,\"bill_start_date\":\"1900-01-01\",\"bill_date\":\"2018-05-05\",\"name_on_card\":\"noname\",\"card_no\":null,\"card_number\":\"****\",\"payment_due_date\":\"2018-05-23\",\"credit_limit\":0.00,\"usd_credit_limit\":0.00,\"new_balance\":1394.07,\"usd_new_balance\":0.00,\"min_payment\":\"540.87\",\"usd_min_payment\":0.00,\"past_due_amount\":0.00,\"usd_past_due_amount\":0.00,\"cash_limit\":0.00,\"usd_cash_limit\":0.00,\"cash_amount\":0.00,\"usd_cash_amount\":0.00,\"last_balance\":0.00,\"usd_last_balance\":0.00,\"last_payment\":0.00,\"usd_last_payment\":0.00,\"new_charges\":0.00,\"usd_new_charges\":0.00,\"adjustment\":0.00,\"usd_adjustment\":0.00,\"interest\":0.00,\"usdInterest\":null,\"create_time\":\"2018-05-19 15:01:39\",\"currency_type\":1,\"email_id\":\"6101408640350273076\",\"failure_point\":0,\"feature_point\":0,\"feature_point_add\":0,\"voucher_balance\":0.00,\"voucher_valid_date\":\"1900-01-01\",\"point\":0,\"point_add\":0,\"point_adjust\":0,\"point_lose_date\":\"2018-05-19\",\"point_reward\":0,\"point_travel\":0,\"point_used\":0,\"point_valid_date\":\"1900-01-01\",\"point_valid_date2\":\"2018-05-19\",\"point_valid_date3\":\"2018-05-19\",\"point_valid_until\":0,\"point_valid_until2\":0,\"point_valid_until3\":0,\"last_point\":0,\"last_modify_time\":\"2018-05-19 15:01:39\",\"mail_id\":\"6101408640350273076_182813078\",\"return_amount\":null,\"status\":0}]},\"errorCode\":null,\"errorMsg\":null}";
 		//deal_email_order(jsonstr);
 	}
+
+	@Override
+	public JSON posSaleType(HttpServletRequest req) {
+		
+		return null;
+	}
+
+	
+
+
+
+
+
+	
+
+	
+
+	
+
+
+
+
+
+
+
+
+
 
 
 	
